@@ -85,7 +85,7 @@ function App() {
           <div className="flex-1 flex flex-col w-full max-w-[1920px] mx-auto md:pl-20 transition-all">
             <Header title={getTitle()} />
 
-            <main className="flex-1 overflow-x-hidden pb-24 md:pb-0">
+            <main className="flex-1 overflow-x-hidden pb-24 md:pb-0 relative">
               {renderContent()}
             </main>
           </div>
