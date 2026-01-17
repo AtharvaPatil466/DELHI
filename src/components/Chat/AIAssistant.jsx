@@ -1,3 +1,4 @@
+import { isForbiddenHealthQuery } from '../../utils/chatGuards';
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, User, Bot, Sparkles, MessageSquare, Plus, Zap, ChevronRight, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -27,6 +28,20 @@ const AIAssistant = () => {
         const userMessage = { id: Date.now(), type: 'user', text };
         setMessages(prev => [...prev, userMessage]);
         setInput('');
+
+        // 🔒 HARD SAFETY GUARD (BLOCK MEDICAL QUERIES)
+        if (isForbiddenHealthQuery(text)) {
+            setMessages(prev => [
+                ...prev,
+                {
+                    id: Date.now() + 1,
+                    type: 'bot',
+                    text: "I cannot provide medical diagnosis or treatment advice. I can help explain air quality conditions, pollution sources, and general safety guidance based on AQI levels."
+                }
+            ]);
+            return;
+        }
+
         setIsTyping(true);
 
         // Mock AI logic based on prompt examples
@@ -34,18 +49,22 @@ const AIAssistant = () => {
             let response = "I'm analyzing the current spatial data across 10 NCR stations. ";
 
             if (text.toLowerCase().includes('run') || text.toLowerCase().includes('safe')) {
-                response = "Based on current AQI of 285 in Connaught Place, outdoor running is not recommended. For your health profile (assuming age 32, no conditions), safe AQI for running is below 150. Consider waiting until 8 PM when AQI is projected to drop to ~240.";
+                response = "AQI levels are currently high in several areas. Outdoor physical activity is not recommended today. General guidance suggests limiting outdoor exposure until air quality improves.";
             } else if (text.toLowerCase().includes('source') || text.toLowerCase().includes('why')) {
-                response = "Current levels are high due to 3 factors: 1) Low wind speeds (2.1 km/h) preventing dispersion, 2) Evening rush hour traffic contributing 62% of PM2.5, and 3) Seasonal winter inversion trapping ground-level emissions.";
+                response = "Current levels are high due to 3 factors: 1) Low wind speeds prevents dispersion, 2) Evening rush hour traffic, and 3) Seasonal winter inversion trapping ground-level emissions.";
             } else if (text.toLowerCase().includes('policy') || text.toLowerCase().includes('odd-even')) {
-                response = "Implementing the Odd-Even scheme currently would reduce vehicular emissions by ~40%, resulting in a total AQI drop of 60-80 points. This could prevent approx 400 premature deaths annually if sustained during the winter months.";
+                response = "Implementing the Odd-Even scheme currently would reduce vehicular emissions. This could significantly impact the total AQI drop during winter months.";
             } else {
-                response = "I've processed your query using the Delhi NCR Pollution platform's ML datasets. The current city-wide average is 298 (Unhealthy). Dwarka remains the cleanest sector today at AQI 245. Would you like to see the 72-hour forecast or safe route recommendations?";
+                response =
+                    "Current city-wide AQI remains in the Unhealthy category. I can help explain forecasts, pollution sources, or policy impacts if you'd like.";
             }
 
-            setMessages(prev => [...prev, { id: Date.now() + 1, type: 'bot', text: response }]);
+            setMessages(prev => [
+                ...prev,
+                { id: Date.now() + 2, type: 'bot', text: response }
+            ]);
             setIsTyping(false);
-        }, 1500);
+        }, 1200);
     };
 
     useEffect(() => {
@@ -152,33 +171,41 @@ const AIAssistant = () => {
                     </div>
                 </div>
 
-                <div className="glass p-6 rounded-3xl bg-gradient-to-br from-indigo-500/5 to-transparent border-indigo-500/10">
-                    <h4 className="font-bold text-sm uppercase tracking-widest text-indigo-400 mb-4 flex items-center gap-2">
-                        <Info className="w-4 h-4" />
-                        System Context
+                {/* System Logs */}
+                <div className="glass p-6 rounded-3xl bg-black/20 border-white/5 flex-1 flex flex-col min-h-0">
+                    <h4 className="font-bold text-sm uppercase tracking-widest text-primary mb-4 flex items-center gap-2">
+                        <Zap className="w-4 h-4" />
+                        System Logs
                     </h4>
-                    <div className="space-y-4">
-                        <div className="flex justify-between items-center text-xs">
-                            <span className="text-gray-500 font-medium">Model Access</span>
-                            <span className="text-white font-bold">L-87 Alpha</span>
+                    <div className="flex-1 overflow-y-auto space-y-3 font-mono text-[10px] custom-scrollbar pr-2">
+                        <div className="flex gap-2 text-gray-500">
+                            <span className="text-primary/50">[13:42:01]</span>
+                            <span className="text-gray-300">Neural Engine v4.2 calibrated via XGBoost output.</span>
                         </div>
-                        <div className="flex justify-between items-center text-xs">
-                            <span className="text-gray-500 font-medium">Data Refresh</span>
-                            <span className="text-white font-bold">Real-time</span>
+                        <div className="flex gap-2 text-gray-500">
+                            <span className="text-primary/50">[13:42:05]</span>
+                            <span className="text-gray-300">Synchronizing spatial data from Anand Vihar sensor.</span>
                         </div>
-                        <div className="flex justify-between items-center text-xs">
-                            <span className="text-gray-500 font-medium">Memory Mode</span>
-                            <span className="text-white font-bold">Session Only</span>
+                        <div className="flex gap-2 text-gray-500">
+                            <span className="text-primary/50">[13:43:12]</span>
+                            <span className="text-success">Safety guardrails active: 104 forbidden patterns loaded.</span>
                         </div>
-                    </div>
-                    <div className="mt-6 p-4 bg-white/5 rounded-2xl border border-white/5">
-                        <div className="flex items-center gap-2 mb-2">
-                            <Zap className="w-3.5 h-3.5 text-warning" />
-                            <span className="text-[10px] font-black text-warning uppercase">Optimization</span>
+                        <div className="flex gap-2 text-gray-500">
+                            <span className="text-primary/50">[13:45:22]</span>
+                            <span className="text-gray-300">Context builder updated with 7-day forecast tensors.</span>
                         </div>
-                        <p className="text-[10px] text-gray-500 leading-relaxed italic">
-                            Assistant is currently favoring preventive health advice as AQI in 4 districts is above the 300 alert threshold.
-                        </p>
+                        <div className="flex gap-2 text-gray-500">
+                            <span className="text-primary/50">[13:47:01]</span>
+                            <span className="text-warning">Inversion layer detected: Increasing health advisory weight.</span>
+                        </div>
+                        <div className="flex gap-2 text-gray-500">
+                            <span className="text-primary/50">[13:47:15]</span>
+                            <span className="text-gray-300">Query processed: Latency 245ms | Tokens: 184</span>
+                        </div>
+                        <div className="flex gap-2 animate-pulse">
+                            <span className="text-primary/50">[_:__:__]</span>
+                            <span className="text-primary">Awaiting input stream...</span>
+                        </div>
                     </div>
                 </div>
             </div>

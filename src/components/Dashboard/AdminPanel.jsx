@@ -1,136 +1,153 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-    ShieldAlert, Bell, Settings, Lock, Eye,
-    RefreshCcw, Download, Terminal, Database,
-    Activity, Users, Send, AlertTriangle
+    Shield, Activity, Settings, Zap,
+    Lock, RefreshCcw, Bell, Database,
+    Cpu, HardDrive, Cpu as Memory, Globe
 } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const AdminPanel = () => {
-    const [activeAlerts] = useState([
-        { id: 1, type: 'Health Alert', area: 'NCR-Wide', level: 'Severe', dispatched: '12:40 PM', reach: '4.2M Users' },
-        { id: 2, type: 'Closure Notice', area: 'Anand Vihar', level: 'Critical', dispatched: '11:15 AM', reach: '180K Users' },
-    ]);
+    const [metrics, setMetrics] = useState({
+        cpu: 45,
+        memory: 62,
+        latency: 12,
+        requests: 2450
+    });
 
-    const systemHealth = [
-        { label: 'Sensor Network', status: 'Online', uptime: '99.9%', color: 'text-success' },
-        { label: 'ML Analytics', status: 'Online', uptime: '98.5%', color: 'text-success' },
-        { label: 'API Gateway', status: 'Optimal', uptime: '100%', color: 'text-success' },
-        { label: 'Auth Service', status: 'Lagging', uptime: '94.2%', color: 'text-warning' },
-    ];
+    // Simulated Live Metrics Updates
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setMetrics(prev => ({
+                cpu: Math.min(100, Math.max(0, prev.cpu + (Math.random() - 0.5) * 5)),
+                memory: Math.min(100, Math.max(0, prev.memory + (Math.random() - 0.5) * 2)),
+                latency: Math.min(200, Math.max(5, prev.latency + (Math.random() - 0.5) * 3)),
+                requests: prev.requests + Math.floor(Math.random() * 10)
+            }));
+        }, 2000);
+        return () => clearInterval(interval);
+    }, []);
 
     return (
-        <div className="p-8 bg-background min-h-[calc(100vh-80px)]">
-            <div className="flex justify-between items-start mb-8">
-                <div>
-                    <h2 className="text-2xl font-bold flex items-center gap-3 text-white">
-                        <Lock className="text-primary w-7 h-7" />
-                        Authority Control Center
-                    </h2>
-                    <p className="text-gray-500 text-sm mt-1">Global administrative override and system health monitoring</p>
-                </div>
+        <div className="p-8 bg-background min-h-[calc(100vh-80px)] text-white space-y-8">
 
-                <div className="flex gap-4">
-                    <button className="flex items-center gap-2 px-4 py-2 bg-danger/10 text-danger border border-danger/20 rounded-xl font-bold text-xs hover:bg-danger/20 transition-all shadow-lg shadow-danger/5">
-                        <AlertTriangle className="w-4 h-4" />
-                        Emergency Broadcast
-                    </button>
-                    <button className="flex items-center gap-2 px-4 py-2 bg-surface border border-white/5 rounded-xl font-bold text-xs hover:bg-white/5 transition-all">
-                        <RefreshCcw className="w-4 h-4" />
-                        Re-sync Sensors
-                    </button>
-                </div>
+            {/* 1. SYSTEM METRICS HEADER */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                {[
+                    { label: 'Neural Engine CPU', value: Math.round(metrics.cpu), unit: '%', icon: Cpu, color: 'text-blue-400' },
+                    { label: 'Context Memory', value: Math.round(metrics.memory), unit: '%', icon: Memory, color: 'text-purple-400' },
+                    { label: 'API Latency', value: Math.round(metrics.latency), unit: 'ms', icon: Activity, color: 'text-green-400' },
+                    { label: 'Total Ingestions', value: metrics.requests.toLocaleString(), unit: '', icon: Database, color: 'text-yellow-400' }
+                ].map((m, i) => (
+                    <div key={i} className="bg-white/5 border border-white/10 p-5 rounded-2xl flex items-center justify-between group hover:bg-white/10 transition-all">
+                        <div>
+                            <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-1">{m.label}</p>
+                            <div className="flex items-baseline gap-1">
+                                <span className="text-2xl font-black font-mono">{m.value}</span>
+                                <span className="text-xs text-gray-500 font-bold">{m.unit}</span>
+                            </div>
+                        </div>
+                        <div className={`p-3 rounded-xl bg-white/5 ${m.color}`}>
+                            <m.icon className="w-5 h-5" />
+                        </div>
+                    </div>
+                ))}
             </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
-                {/* System Health */}
-                <div className="xl:col-span-1 space-y-6">
-                    <h3 className="text-xs font-black text-gray-500 uppercase tracking-widest px-2">Core Services</h3>
-                    {systemHealth.map((s, i) => (
-                        <div key={i} className="glass p-4 rounded-2xl border-white/5 flex flex-col gap-3">
-                            <div className="flex justify-between items-center">
-                                <span className="text-xs font-bold text-gray-300">{s.label}</span>
-                                <div className={`w-2 h-2 rounded-full ${s.color === 'text-success' ? 'bg-success' : 'bg-warning'} shadow-[0_0_8px_currentColor]`}></div>
-                            </div>
-                            <div className="flex justify-between items-end">
-                                <span className={`text-lg font-black ${s.color} font-mono`}>{s.status}</span>
-                                <span className="text-[10px] text-gray-600 font-bold">{s.uptime}</span>
-                            </div>
-                        </div>
-                    ))}
-                </div>
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
 
-                {/* Global Alerts & Broadcast History */}
-                <div className="xl:col-span-3 space-y-8">
-                    <div className="glass p-8 rounded-3xl border-white/5">
+                {/* LEFT COLUMN: SYSTEM CONTROLS */}
+                <div className="xl:col-span-8 space-y-6">
+
+                    {/* Feature Toggles */}
+                    <div className="bg-black/20 border border-white/10 rounded-3xl p-8">
                         <div className="flex items-center justify-between mb-8">
-                            <h3 className="font-bold text-lg flex items-center gap-3">
-                                <Bell className="w-5 h-5 text-primary" />
-                                Active Emergency Alerts
+                            <h3 className="text-xl font-bold flex items-center gap-3">
+                                <Settings className="w-5 h-5 text-blue-500" />
+                                Platform Control Center
                             </h3>
-                            <span className="text-[10px] font-bold text-gray-500 uppercase bg-surface px-3 py-1 rounded-full border border-white/5">Auto-Refreshes in 12s</span>
+                            <div className="flex gap-2">
+                                <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 rounded-lg text-xs font-bold hover:bg-blue-500 mb-0">
+                                    <RefreshCcw className="w-4 h-4" /> REBOOT NODES
+                                </button>
+                            </div>
                         </div>
 
-                        <div className="space-y-4">
-                            {activeAlerts.map(alert => (
-                                <div key={alert.id} className="flex items-center justify-between p-5 bg-surface/50 border border-white/5 rounded-2xl hover:border-white/20 transition-all group">
-                                    <div className="flex items-center gap-6">
-                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${alert.level === 'Severe' ? 'bg-danger/10' : 'bg-danger/20'} border border-danger/10`}>
-                                            <ShieldAlert className="w-6 h-6 text-danger" />
-                                        </div>
-                                        <div>
-                                            <h4 className="font-bold text-sm text-white">{alert.type} - {alert.area}</h4>
-                                            <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">Dispatched at {alert.dispatched} • Impact: {alert.reach}</p>
-                                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {[
+                                { title: 'NASA Satellite Feed', desc: 'Real-time thermal anomaly detection', active: true },
+                                { title: 'Vision AI (Traffic)', desc: 'Vehicular emission estimation engine', active: true },
+                                { title: 'Global Public Chat', desc: 'Allow citizen science interaction', active: true },
+                                { title: 'Prediction Layer V4', desc: 'XGBoost multi-variable forecasting', active: false },
+                            ].map((feature, i) => (
+                                <div key={i} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 hover:border-white/20 transition-all">
+                                    <div>
+                                        <h4 className="font-bold text-sm text-gray-200">{feature.title}</h4>
+                                        <p className="text-[10px] text-gray-500">{feature.desc}</p>
                                     </div>
-                                    <div className="flex gap-3">
-                                        <button className="p-2.5 rounded-xl bg-surface border border-white/5 text-gray-500 hover:text-white transition-colors">
-                                            <Eye className="w-4 h-4" />
-                                        </button>
-                                        <button className="p-2.5 rounded-xl bg-surface border border-white/5 text-gray-500 hover:text-danger transition-colors">
-                                            <Activity className="w-4 h-4" />
-                                        </button>
+                                    <div className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors ${feature.active ? 'bg-blue-500' : 'bg-gray-700'}`}>
+                                        <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${feature.active ? 'left-6' : 'left-1'}`}></div>
                                     </div>
                                 </div>
                             ))}
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div className="glass p-8 rounded-3xl border-white/5 min-h-[300px] flex flex-col">
-                            <h4 className="font-bold mb-6 flex items-center gap-2">
-                                <Terminal className="w-5 h-5 text-gray-400" />
-                                Security Logs
-                            </h4>
-                            <div className="flex-1 bg-black/40 rounded-2xl p-4 font-mono text-[10px] text-success/70 leading-relaxed overflow-y-auto max-h-[200px] custom-scrollbar">
-                                <p className="mb-1"><span className="text-gray-600">[12:45:01]</span> Admin session initialized from 192.168.1.1</p>
-                                <p className="mb-1"><span className="text-gray-600">[12:48:22]</span> Sensor 'AV-34' recalibrated (+2.4% sensitivity)</p>
-                                <p className="mb-1"><span className="text-gray-600">[12:50:45]</span> Alert dispatched to Noida Cluster 4</p>
-                                <p className="mb-1"><span className="text-gray-600">[12:52:10]</span> Database backup successful (S3-Buckets-A)</p>
-                                <p className="mb-1 animate-pulse"><span className="text-gray-600">[12:54:33]</span> Fetching live satellite telemetry...</p>
-                            </div>
+                    {/* Simulated System Logs */}
+                    <div className="bg-black/40 border border-white/10 rounded-3xl p-8 h-[300px] flex flex-col">
+                        <div className="flex items-center gap-3 mb-4">
+                            <Activity className="w-4 h-4 text-green-500" />
+                            <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest">Global Event Stream</h4>
                         </div>
+                        <div className="flex-1 overflow-y-auto font-mono text-[10px] space-y-2 pr-4 custom-scrollbar">
+                            <p className="text-gray-500"><span className="text-blue-500">[14:02:45]</span> NASA-VIIRS fire data ingested successfully. 42 hotspots identified.</p>
+                            <p className="text-gray-500"><span className="text-blue-500">[14:02:40]</span> Vision AI calibrated Traffic Index for ITO Junction: 1.12 load.</p>
+                            <p className="text-yellow-500"><span className="text-blue-500">[14:01:21]</span> Auth Service: Slow response from North Delhi sensor node.</p>
+                            <p className="text-gray-500"><span className="text-blue-500">[14:00:15]</span> Scheduled task: policy_impact_sync complete.</p>
+                            <p className="text-green-500"><span className="text-blue-500">[13:58:02]</span> New Citizen Report: Construction Dust violation @ Noida Sec 62.</p>
+                            <p className="text-gray-500"><span className="text-blue-500">[13:55:45]</span> Neural Engine v4.2 optimization routine start.</p>
+                        </div>
+                    </div>
+                </div>
 
-                        <div className="glass p-8 rounded-3xl border-white/5 bg-gradient-to-br from-primary/5 to-transparent">
-                            <h4 className="font-bold mb-4 flex items-center gap-2">
-                                <Database className="w-5 h-5 text-primary" />
-                                Consolidated Reports
-                            </h4>
-                            <p className="text-xs text-gray-500 mb-8 leading-relaxed">
-                                Generate automated weekly compliance reports for the Central Pollution Control Board (CPCB).
-                            </p>
-                            <div className="space-y-3">
-                                <button className="w-full flex items-center justify-between p-4 bg-surface border border-white/5 rounded-2xl text-xs font-bold hover:bg-white/5 transition-all group">
-                                    <span className="text-gray-400 group-hover:text-white">Scientific Summary (PDF)</span>
-                                    <Download className="w-4 h-4 text-gray-600 group-hover:text-primary" />
-                                </button>
-                                <button className="w-full flex items-center justify-between p-4 bg-surface border border-white/5 rounded-2xl text-xs font-bold hover:bg-white/5 transition-all group">
-                                    <span className="text-gray-400 group-hover:text-white">Sensor Calibration Log (CSV)</span>
-                                    <Download className="w-4 h-4 text-gray-600 group-hover:text-primary" />
-                                </button>
+                {/* RIGHT COLUMN: SECURITY & ALERTS */}
+                <div className="xl:col-span-4 space-y-6">
+                    <div className="bg-red-900/10 border border-red-500/20 p-8 rounded-3xl">
+                        <h4 className="text-red-400 font-bold flex items-center gap-2 mb-6">
+                            <Bell className="w-4 h-4" />
+                            Emergency Broadcast
+                        </h4>
+                        <p className="text-xs text-gray-400 mb-6">Authorize emergency notification push to 2.4M registered mobile devices in Delhi NCR.</p>
+                        <div className="space-y-4">
+                            <button className="w-full py-4 bg-red-600/20 border border-red-500/40 text-red-500 font-bold rounded-2xl hover:bg-red-600/30 transition-all text-xs">
+                                SEND GRAP-4 ALERT
+                            </button>
+                            <button className="w-full py-4 bg-white/5 border border-white/10 text-gray-400 font-bold rounded-2xl hover:bg-white/10 transition-all text-xs">
+                                MANAGE TEMPLATES
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="bg-white/5 border border-white/10 p-8 rounded-3xl">
+                        <h4 className="text-gray-200 font-bold mb-6">Security Context</h4>
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-4">
+                                <div className="p-2 bg-green-500/10 rounded-lg"><Lock className="w-4 h-4 text-green-500" /></div>
+                                <div>
+                                    <p className="text-xs font-bold text-white">Encrypted Sensor Tunnel</p>
+                                    <p className="text-[10px] text-gray-500">AES-256 Active</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <div className="p-2 bg-blue-500/10 rounded-lg"><Globe className="w-4 h-4 text-blue-500" /></div>
+                                <div>
+                                    <p className="text-xs font-bold text-white">Geo-Redundancy</p>
+                                    <p className="text-[10px] text-gray-500">2 Nodes Active (NCR-1, NCR-2)</p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
     );

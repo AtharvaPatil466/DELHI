@@ -61,7 +61,7 @@ export const POLICIES = [
     }
 ];
 
-export const simulatePolicy = (activePolicyIds, currentAQI) => {
+export const simulatePolicy = (activePolicyIds, currentAQI, compliance = 100) => {
     let totalReduction = 0;
     let totalCost = 0;
     let totalLivesSaved = 0;
@@ -71,7 +71,7 @@ export const simulatePolicy = (activePolicyIds, currentAQI) => {
         const policy = POLICIES.find(p => p.id === id);
         if (policy) {
             // Synergistic effects: first policy is 100% effective, others 70%, 50%...
-            const multiplier = Math.pow(0.8, totalReduction / 50);
+            const multiplier = Math.pow(0.8, totalReduction / 50) * (compliance / 100);
             totalReduction += policy.reduction * multiplier;
             totalCost += policy.annualCost;
             totalLivesSaved += policy.livesSaved * multiplier;

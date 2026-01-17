@@ -3,6 +3,7 @@ import Sidebar from './components/Shared/Navigation';
 import Header from './components/Dashboard/Header';
 import DashboardOverview from './components/Dashboard/DashboardOverview';
 import SourceAnalysis from './components/Sources/SourceAnalysis';
+import TrafficDashboard from './components/Sources/TrafficDashboard'; // <--- NEW IMPORT
 import AQIForecast from './components/Forecast/AQIForecast';
 import PolicySimulator from './components/Policy/PolicySimulator';
 import HealthAdvisor from './components/Health/HealthAdvisor';
@@ -36,11 +37,24 @@ function App() {
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard': return <DashboardOverview />;
-      case 'sources': return <SourceAnalysis />;
+
+      // --- UPDATED SECTION START ---
+      case 'sources': return (
+        <div className="p-6 space-y-6">
+          <SourceAnalysis />
+          <div className="grid grid-cols-12 gap-6">
+            <div className="col-span-12 lg:col-span-8">
+              <TrafficDashboard />
+            </div>
+          </div>
+        </div>
+      );
+      // --- UPDATED SECTION END ---
+
       case 'forecast': return <AQIForecast />;
       case 'policy': return <PolicySimulator />;
       case 'health': return <HealthAdvisor />;
-      case 'heatmap': return <Map3D />;
+      case 'heatmap': return <Map3D setActiveTab={setActiveTab} />;
       case 'community': return <CitizenScience />;
       case 'chat': return <AIAssistant />;
       case 'settings': return <AdminPanel />;

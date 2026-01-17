@@ -1,0 +1,137 @@
+[
+    {
+        "id": "bk-1",
+        "position": [
+            30.15,
+            74.85
+        ],
+        "frp": 142,
+        "confidence": "High"
+    },
+    {
+        "id": "bk-2",
+        "position": [
+            30.22,
+            75.12
+        ],
+        "frp": 89,
+        "confidence": "Nominal"
+    },
+    {
+        "id": "bk-3",
+        "position": [
+            29.85,
+            75.45
+        ],
+        "frp": 210,
+        "confidence": "High"
+    },
+    {
+        "id": "bk-4",
+        "position": [
+            30.55,
+            74.32
+        ],
+        "frp": 65,
+        "confidence": "Nominal"
+    },
+    {
+        "id": "bk-5",
+        "position": [
+            30.12,
+            75.78
+        ],
+        "frp": 175,
+        "confidence": "High"
+    },
+    {
+        "id": "bk-6",
+        "position": [
+            29.95,
+            74.55
+        ],
+        "frp": 120,
+        "confidence": "High"
+    },
+    {
+        "id": "bk-7",
+        "position": [
+            30.35,
+            76.12
+        ],
+        "frp": 55,
+        "confidence": "Nominal"
+    },
+    {
+        "id": "bk-8",
+        "position": [
+            30.45,
+            75.25
+        ],
+        "frp": 198,
+        "confidence": "High"
+    },
+    {
+        "id": "bk-9",
+        "position": [
+            29.75,
+            74.95
+        ],
+        "frp": 82,
+        "confidence": "Nominal"
+    },
+    {
+        "id": "bk-10",
+        "position": [
+            30.05,
+            75.05
+        ],
+        "frp": 155,
+        "confidence": "High"
+    },
+    {
+        "id": "bk-11",
+        "position": [
+            30.25,
+            75.45
+        ],
+        "frp": 110,
+        "confidence": "High"
+    },
+    {
+        "id": "bk-12",
+        "position": [
+            30.65,
+            74.65
+        ],
+        "frp": 78,
+        "confidence": "Nominal"
+    },
+    {
+        "id": "bk-13",
+        "position": [
+            29.55,
+            75.85
+        ],
+        "frp": 230,
+        "confidence": "High"
+    },
+    {
+        "id": "bk-14",
+        "position": [
+            30.18,
+            75.22
+        ],
+        "frp": 135,
+        "confidence": "High"
+    },
+    {
+        "id": "bk-15",
+        "position": [
+            30.38,
+            74.88
+        ],
+        "frp": 95,
+        "confidence": "Nominal"
+    }
+]

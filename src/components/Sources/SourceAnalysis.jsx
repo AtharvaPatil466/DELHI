@@ -1,9 +1,15 @@
 import React, { useState, useMemo } from 'react';
+import { motion } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, ReferenceLine } from 'recharts';
-import { BarChart2, Activity, Shield, Brain, Microscope, TrendingUp, Target, Home, TrendingDown, CheckCircle as CheckCircleIcon } from 'lucide-react';
+import { BarChart2, Activity, Shield, Brain, Microscope, TrendingUp, Target, Home, TrendingDown, CheckCircle as CheckCircleIcon, Radar, HelpCircle, Flame, Loader2 } from 'lucide-react';
 import { calculateSources, getCurrentAQI, AREAS } from '../../utils/dataGenerator';
 import { generateSourceExplanation, generateRecommendations, getAreaMetadata } from '../../utils/sourceInsights';
+import { fetchFireDataFeed } from '../../utils/satelliteData';
+const FireScatterPlot = React.lazy(() => import('./FireScatterPlot'));
+const FireClusterAnalysis = React.lazy(() => import('./FireClusterAnalysis'));
+import FireIntelligenceCenter from './FireIntelligenceCenter';
 import DrillDownModal from './DrillDownModal';
+import { Suspense } from 'react';
 
 const SourceAnalysis = () => {
     const [selectedArea, setSelectedArea] = useState('anand-vihar');
@@ -11,6 +17,33 @@ const SourceAnalysis = () => {
     const [modalData, setModalData] = useState({ isOpen: false, type: null, color: null });
     const [activeSource, setActiveSource] = useState(null); // For legend filtering
     const [actionView, setActionView] = useState('authorities'); // 'authorities' or 'citizens'
+    const [fireFeed, setFireFeed] = useState({ allFires: [], impactfulFires: [], clusters: [], attribution: {}, metadata: {} });
+    const [mapView, setMapView] = useState({ center: [31.0, 75.5], zoom: 7 });
+
+    const handleClusterZoom = (coords) => {
+        setMapView({ center: coords, zoom: 10 });
+    };
+
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    const loadSatelliteData = async () => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            const feed = await fetchFireDataFeed();
+            setFireFeed(feed);
+        } catch (err) {
+            setError("Satellite data inaccessible");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // Load specialized feed
+    React.useEffect(() => {
+        loadSatelliteData();
+    }, []);
 
     // Generate 24h Data
     const generateHourlyData = () => {
@@ -98,13 +131,32 @@ const SourceAnalysis = () => {
                     {/* AI Insight Box (Requested Feature) */}
                     <div className="mb-4 p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-lg flex items-start gap-2.5 md:gap-3">
                         <div className="p-1.5 bg-indigo-500/20 rounded-md shrink-0">
-                            <Brain className="w-3 md:w-3.5 h-3 md:h-3.5 text-indigo-400" />
+                            {isLoading ? (
+                                <Loader2 className="w-3 md:w-3.5 h-3 md:h-3.5 text-indigo-400 animate-spin" />
+                            ) : (
+                                <Brain className="w-3 md:w-3.5 h-3 md:h-3.5 text-indigo-400" />
+                            )}
                         </div>
                         <div>
-                            <p className="text-[10px] md:text-[11px] text-indigo-200 leading-relaxed font-medium">
-                                <span className="text-indigo-400 font-bold uppercase text-[9px] md:text-[10px] tracking-wider block mb-0.5">AI Insight</span>
-                                Spike is 80% correlated with crop residue burning smoke drift.
-                            </p>
+                            {isLoading ? (
+                                <div className="space-y-2">
+                                    <div className="h-2 w-24 bg-indigo-500/20 rounded animate-pulse"></div>
+                                    <div className="h-3 w-48 bg-indigo-500/10 rounded animate-pulse"></div>
+                                </div>
+                            ) : error ? (
+                                <p className="text-[10px] md:text-[11px] text-red-400 leading-relaxed font-medium">
+                                    NASA satellite connection lost. Viewing historical source models.
+                                </p>
+                            ) : (
+                                <p className="text-[10px] md:text-[11px] text-indigo-200 leading-relaxed font-medium">
+                                    <span className="text-indigo-400 font-bold uppercase text-[9px] md:text-[10px] tracking-wider block mb-0.5 text-glow-indigo">
+                                        AI Insight {currentSources.find(s => s.name === 'Stubble')?.isSatelliteVerified && '• SATELLITE VERIFIED'}
+                                    </span>
+                                    {currentSources.find(s => s.name === 'Stubble')?.value > 20
+                                        ? "Stubble burning detected in Punjab/Haryana. High impact score on local PM2.5."
+                                        : "Atmospheric stagnation and local emission accumulation are the primary drivers."}
+                                </p>
+                            )}
                         </div>
                     </div>
 
@@ -124,17 +176,66 @@ const SourceAnalysis = () => {
                                     stroke="none"
                                 >
                                     {currentSources.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={COLORS[entry.name]} opacity={0.9} />
+                                        <Cell
+                                            key={`cell-${index}`}
+                                            fill={COLORS[entry.name]}
+                                            opacity={0.9}
+                                            className={entry.name === 'Stubble' && entry.isSatelliteVerified ? 'animate-pulse' : ''}
+                                            stroke={entry.name === 'Stubble' && entry.isSatelliteVerified ? '#ef4444' : 'none'}
+                                            strokeWidth={entry.name === 'Stubble' && entry.isSatelliteVerified ? 2 : 0}
+                                        />
                                     ))}
                                 </Pie>
                                 <Tooltip contentStyle={{ backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '6px', fontSize: '12px' }} />
                             </PieChart>
                         </ResponsiveContainer>
+
+                        {/* Satellite-Verified Overlay Badge (NEW) */}
+                        {currentSources.find(s => s.name === 'Stubble')?.isSatelliteVerified && (
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                className="absolute top-[15%] right-[15%] px-2 py-1 bg-red-500/20 border border-red-500/40 rounded-full flex items-center gap-1.5 backdrop-blur-md z-10 shadow-[0_0_15px_rgba(239,68,68,0.3)]"
+                            >
+                                <span className="relative flex h-2 w-2">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                                </span>
+                                <span className="text-[8px] font-black text-white uppercase tracking-tighter">Satellite Verified</span>
+                            </motion.div>
+                        )}
+
                         {/* Center Label (Scientific Look) */}
                         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                             <span className="text-2xl md:text-4xl font-mono font-bold text-white tracking-tighter">{getCurrentAQI(selectedArea)}</span>
                             <span className="text-[8px] md:text-[10px] text-muted uppercase tracking-widest mt-1">Live AQI</span>
                         </div>
+                    </div>
+
+                    {/* Source Legend with Fire Metrics (NEW) */}
+                    <div className="mt-6 grid grid-cols-2 gap-3 border-t border-white/5 pt-4">
+                        {currentSources.map((s, i) => (
+                            <div key={i} className={`p-2 rounded-lg bg-white/5 border border-transparent ${s.name === 'Stubble' && s.isSatelliteVerified ? 'border-red-500/20 bg-red-500/5' : ''}`}>
+                                <div className="flex justify-between items-center mb-1">
+                                    <span className="text-[9px] font-bold text-gray-500 uppercase">{s.name}</span>
+                                    <span className="text-xs font-black text-white">{s.value}%</span>
+                                </div>
+                                {s.name === 'Stubble' && s.isSatelliteVerified && (
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-1">
+                                            <Flame className="w-2.5 h-2.5 text-red-400" />
+                                            <span className="text-[8px] font-bold text-red-200 uppercase">{fireFeed.allFires.length} Fires</span>
+                                        </div>
+                                        <div className="group relative">
+                                            <HelpCircle className="w-2.5 h-2.5 text-gray-600 cursor-help" />
+                                            <div className="absolute bottom-full right-0 mb-2 w-48 p-2 bg-black border border-white/10 rounded-lg text-[8px] leading-tight text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity z-50 pointer-events-none shadow-2xl">
+                                                Determined by live NASA MODIS/VIIRS thermal anomalies. Impact calculated via distance-decay and upwind sector analysis.
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        ))}
                     </div>
                 </div>
 
@@ -188,6 +289,72 @@ const SourceAnalysis = () => {
                                 ))}
                             </BarChart>
                         </ResponsiveContainer>
+                    </div>
+                </div>
+
+                {/* Fire Intelligence Hub (NEW) */}
+                <div className="col-span-12">
+                    <FireIntelligenceCenter fireFeed={fireFeed} />
+                </div>
+
+                {/* 5. Regional Satellite Intelligence (NEW) - Col Span 12 */}
+                <div className="col-span-12 bg-surface/40 border border-border rounded-xl p-4 md:p-6 backdrop-blur-sm relative overflow-hidden min-h-[550px]">
+                    <div className="flex justify-between items-center mb-6">
+                        <div className="flex items-center gap-3">
+                            <div className="bg-primary/20 p-2 rounded-lg">
+                                <Radar className="w-4 h-4 text-primary" />
+                            </div>
+                            <div>
+                                <h3 className="text-xs md:text-sm font-bold text-white uppercase tracking-wider">Regional Satellite Intelligence</h3>
+                                <p className="text-[10px] text-muted font-mono uppercase">NASA MODIS Active Fire Detection • 20km Influencer Mesh</p>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                            <button
+                                onClick={() => setMapView({ center: [31.0, 75.5], zoom: 7 })}
+                                className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-[10px] font-bold text-gray-400 hover:text-white transition-colors uppercase tracking-widest"
+                            >
+                                Reset View
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-12 gap-6 h-[400px]">
+                        {/* Cluster Analysis Sidebar */}
+                        <div className="col-span-12 lg:col-span-4 h-full overflow-hidden flex flex-col">
+                            <Suspense fallback={<div className="h-full flex items-center justify-center bg-zinc-900/50 rounded-xl border border-white/5"><Loader2 className="w-5 h-5 text-zinc-700 animate-spin" /></div>}>
+                                <FireClusterAnalysis
+                                    clusters={fireFeed.clusters || []}
+                                    onZoom={handleClusterZoom}
+                                />
+                            </Suspense>
+                        </div>
+
+                        {/* Spatial Scatter Map */}
+                        <div className="col-span-12 lg:col-span-8 h-full rounded-xl overflow-hidden border border-white/5 shadow-inner">
+                            <Suspense fallback={<div className="h-full flex items-center justify-center bg-zinc-900/50 rounded-xl border border-white/5"><div className="flex flex-col items-center gap-2"><Loader2 className="w-6 h-6 text-primary animate-spin" /><p className="text-[8px] font-black text-primary uppercase tracking-[0.2em]">Initializing Spatial View</p></div></div>}>
+                                <FireScatterPlot
+                                    fires={fireFeed.allFires || []}
+                                    center={mapView.center}
+                                    zoom={mapView.zoom}
+                                />
+                            </Suspense>
+                        </div>
+                    </div>
+
+                    {/* Plot Footer */}
+                    <div className="mt-4 flex flex-wrap gap-6 items-center border-t border-white/5 pt-4">
+                        <div className="flex items-center gap-2">
+                            <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                            <span className="text-[10px] text-zinc-400 uppercase font-bold tracking-widest">Punjab/Haryana Belt</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <div className="w-1.5 h-1.5 rounded-full bg-success shadow-[0_0_8px_#22c55e]"></div>
+                            <span className="text-[10px] text-zinc-400 uppercase font-bold tracking-widest">NCR Receptor (Delhi)</span>
+                        </div>
+                        <div className="ml-auto text-[9px] text-zinc-600 font-mono italic">
+                            LAST UPDATED: {fireFeed.metadata?.timestamp ? new Date(fireFeed.metadata.timestamp).toLocaleTimeString() : 'N/A'}
+                        </div>
                     </div>
                 </div>
 

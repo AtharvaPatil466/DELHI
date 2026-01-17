@@ -1,0 +1,35 @@
+{
+  "model": "XGBoost Regression",
+  "data_source": "CPCB AQI (Excel Pivoted Format)",
+  "forecast_days": 7,
+  "aqi_forecast": [
+    {
+      "date": "2025-04-01",
+      "aqi": 160.16
+    },
+    {
+      "date": "2025-04-02",
+      "aqi": 177.86
+    },
+    {
+      "date": "2025-04-03",
+      "aqi": 174.27
+    },
+    {
+      "date": "2025-04-04",
+      "aqi": 181.4
+    },
+    {
+      "date": "2025-04-05",
+      "aqi": 180.24
+    },
+    {
+      "date": "2025-04-06",
+      "aqi": 174.57
+    },
+    {
+      "date": "2025-04-07",
+      "aqi": 170.43
+    }
+  ]
+}

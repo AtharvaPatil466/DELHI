@@ -1,3 +1,4 @@
+import { getFireAttribution } from './satelliteData';
 
 /**
  * Realistic AQI Data Generator for Delhi NCR
@@ -5,31 +6,31 @@
  */
 
 export const AREAS = [
-    { id: 'anand-vihar', name: 'Anand Vihar', baseAQI: 240, type: 'Industrial' },
-    { id: 'cp', name: 'Connaught Place', baseAQI: 180, type: 'Commercial' },
-    { id: 'dwarka', name: 'Dwarka Sector 8', baseAQI: 160, type: 'Residential' },
-    { id: 'rohini', name: 'Rohini', baseAQI: 210, type: 'Residential' },
-    { id: 'noida', name: 'Noida Sector 62', baseAQI: 175, type: 'Mixed' },
-    { id: 'gurgaon', name: 'Gurgaon Cyber City', baseAQI: 165, type: 'Commercial' },
-    { id: 'faridabad', name: 'Faridabad', baseAQI: 195, type: 'Industrial' },
-    { id: 'ghaziabad', name: 'Ghaziabad', baseAQI: 230, type: 'Industrial' },
-    { id: 'rk-puram', name: 'RK Puram', baseAQI: 155, type: 'Residential' },
-    { id: 'punjabi-bagh', name: 'Punjabi Bagh', baseAQI: 170, type: 'Residential' },
-    { id: 'okhla', name: 'Okhla Phase 2', baseAQI: 225, type: 'Industrial' },
-    { id: 'najafgarh', name: 'Najafgarh', baseAQI: 150, type: 'Mixed' },
-    { id: 'shadipur', name: 'Shadipur', baseAQI: 250, type: 'Industrial' },
-    { id: 'karol-bagh', name: 'Karol Bagh', baseAQI: 190, type: 'Commercial' },
-    { id: 'lodhi-road', name: 'Lodhi Road', baseAQI: 130, type: 'Residential' },
-    { id: 'igi', name: 'IGI Airport (T3)', baseAQI: 160, type: 'Transport' },
-    { id: 'bawana', name: 'Bawana', baseAQI: 260, type: 'Industrial' },
-    { id: 'mundka', name: 'Mundka', baseAQI: 270, type: 'Industrial' },
-    { id: 'alipur', name: 'Alipur', baseAQI: 165, type: 'Mixed' },
-    { id: 'nehru-nagar', name: 'Nehru Nagar', baseAQI: 185, type: 'Residential' },
-    { id: 'jahangirpuri', name: 'Jahangirpuri', baseAQI: 255, type: 'Industrial' },
-    { id: 'wazirpur', name: 'Wazirpur', baseAQI: 265, type: 'Industrial' },
-    { id: 'aurobindo', name: 'Sri Aurobindo Marg', baseAQI: 145, type: 'Mixed' },
-    { id: 'patparganj', name: 'Patparganj', baseAQI: 180, type: 'Industrial' },
-    { id: 'sonia-vihar', name: 'Sonia Vihar', baseAQI: 175, type: 'Residential' }
+    { id: 'anand-vihar', name: 'Anand Vihar', baseAQI: 240, type: 'Industrial', coords: [28.6476, 77.3158] },
+    { id: 'cp', name: 'Connaught Place', baseAQI: 180, type: 'Commercial', coords: [28.6315, 77.2167] },
+    { id: 'dwarka', name: 'Dwarka Sector 8', baseAQI: 160, type: 'Residential', coords: [28.5644, 77.0688] },
+    { id: 'rohini', name: 'Rohini', baseAQI: 210, type: 'Residential', coords: [28.7303, 77.1084] },
+    { id: 'noida', name: 'Noida Sector 62', baseAQI: 175, type: 'Mixed', coords: [28.6255, 77.3688] },
+    { id: 'gurgaon', name: 'Gurgaon Cyber City', baseAQI: 165, type: 'Commercial', coords: [28.4952, 77.0891] },
+    { id: 'faridabad', name: 'Faridabad', baseAQI: 195, type: 'Industrial', coords: [28.4089, 77.3178] },
+    { id: 'ghaziabad', name: 'Ghaziabad', baseAQI: 230, type: 'Industrial', coords: [28.6692, 77.4538] },
+    { id: 'rk-puram', name: 'RK Puram', baseAQI: 155, type: 'Residential', coords: [28.5660, 77.1767] },
+    { id: 'punjabi-bagh', name: 'Punjabi Bagh', baseAQI: 170, type: 'Residential', coords: [28.6690, 77.1244] },
+    { id: 'okhla', name: 'Okhla Phase 2', baseAQI: 225, type: 'Industrial', coords: [28.5372, 77.2730] },
+    { id: 'najafgarh', name: 'Najafgarh', baseAQI: 150, type: 'Mixed', coords: [28.6090, 76.9850] },
+    { id: 'shadipur', name: 'Shadipur', baseAQI: 250, type: 'Industrial', coords: [28.6517, 77.1581] },
+    { id: 'karol-bagh', name: 'Karol Bagh', baseAQI: 190, type: 'Commercial', coords: [28.6513, 77.1907] },
+    { id: 'lodhi-road', name: 'Lodhi Road', baseAQI: 130, type: 'Residential', coords: [28.5910, 77.2280] },
+    { id: 'igi', name: 'IGI Airport (T3)', baseAQI: 160, type: 'Transport', coords: [28.5562, 77.0810] },
+    { id: 'bawana', name: 'Bawana', baseAQI: 260, type: 'Industrial', coords: [28.7972, 77.0420] },
+    { id: 'mundka', name: 'Mundka', baseAQI: 270, type: 'Industrial', coords: [28.6836, 77.0326] },
+    { id: 'alipur', name: 'Alipur', baseAQI: 165, type: 'Mixed', coords: [28.8031, 77.1325] },
+    { id: 'nehru-nagar', name: 'Nehru Nagar', baseAQI: 185, type: 'Residential', coords: [28.5678, 77.2450] },
+    { id: 'jahangirpuri', name: 'Jahangirpuri', baseAQI: 255, type: 'Industrial', coords: [28.7350, 77.1780] },
+    { id: 'wazirpur', name: 'Wazirpur', baseAQI: 265, type: 'Industrial', coords: [28.6990, 77.1650] },
+    { id: 'aurobindo', name: 'Sri Aurobindo Marg', baseAQI: 145, type: 'Mixed', coords: [28.5410, 77.2020] },
+    { id: 'patparganj', name: 'Patparganj', baseAQI: 180, type: 'Industrial', coords: [28.6230, 77.2990] },
+    { id: 'sonia-vihar', name: 'Sonia Vihar', baseAQI: 175, type: 'Residential', coords: [28.7100, 77.2550] }
 ];
 
 export const SEASONAL_FACTORS = {
@@ -48,12 +49,12 @@ export const SEASONAL_FACTORS = {
 };
 
 export const getAirQualityLevel = (aqi) => {
-    if (aqi <= 50) return { label: 'Good', color: '#10B981', textColor: 'text-success', description: 'Air quality is satisfactory.' };
-    if (aqi <= 100) return { label: 'Satisfactory', color: '#84CC16', textColor: 'text-success', description: 'Minor breathing discomfort to sensitive people.' };
-    if (aqi <= 200) return { label: 'Moderate', color: '#EAB308', textColor: 'text-warning', description: 'Breathing discomfort to people with lungs/asthma/heart diseases.' };
-    if (aqi <= 300) return { label: 'Poor', color: '#F97316', textColor: 'text-warning', description: 'Breathing discomfort to most people on prolonged exposure.' };
+    if (aqi <= 50) return { label: 'Good', color: '#10B981', textColor: 'text-success', description: 'Satisfactory.' };
+    if (aqi <= 100) return { label: 'Satisfactory', color: '#84CC16', textColor: 'text-success', description: 'Minor breathing discomfort.' };
+    if (aqi <= 200) return { label: 'Moderate', color: '#EAB308', textColor: 'text-warning', description: 'Breathing discomfort to sensitive people.' };
+    if (aqi <= 300) return { label: 'Poor', color: '#F97316', textColor: 'text-warning', description: 'Breathing discomfort to most people.' };
     if (aqi <= 400) return { label: 'Very Poor', color: '#EF4444', textColor: 'text-danger', description: 'Respiratory illness on prolonged exposure.' };
-    return { label: 'Severe', color: '#7C3AED', textColor: 'text-purple-500', description: 'Affects healthy people and seriously impacts those with existing diseases.' };
+    return { label: 'Severe', color: '#991B1B', textColor: 'text-red-900', description: 'Seriously impacts those with existing diseases.' }; // Deep Dark Red
 };
 
 export const calculatePollutants = (aqi) => ({
@@ -115,9 +116,34 @@ export const getHistoricalMonthlyData = (areaId) => {
     }));
 };
 
+/**
+ * Calculates total smoke impact from fires based on NW wind drift
+ */
+const calculateFireImpact = (fires) => {
+    const DELHI_COORDS = [28.6139, 77.2090];
+    let totalImpact = 0;
+
+    fires.forEach(fire => {
+        const [fLat, fLon] = fire.position;
+        // Check if fire is North-West of Delhi (Stubble burning zone)
+        if (fLat > DELHI_COORDS[0] && fLon < DELHI_COORDS[1]) {
+            const distance = Math.sqrt(
+                Math.pow(fLat - DELHI_COORDS[0], 2) +
+                Math.pow(fLon - DELHI_COORDS[1], 2)
+            );
+            // Impact decreases with distance, increases with intensity
+            const impact = (fire.intensity || 0.5) / (distance + 0.1);
+            totalImpact += impact;
+        }
+    });
+
+    return totalImpact * 5; // Scaling factor
+};
+
 // NEW: Missing function for Source Attribution
 export const calculateSources = (areaId, hour, month) => {
     const area = AREAS.find(a => a.id === areaId) || AREAS[0];
+    const attribution = getFireAttribution();
 
     // Base Distribution based on Area Type
     let base = { Vehicular: 30, Industrial: 20, Construction: 15, Stubble: 5, Other: 30 };
@@ -126,19 +152,25 @@ export const calculateSources = (areaId, hour, month) => {
     else if (area.type === 'Commercial') base = { Vehicular: 50, Industrial: 10, Construction: 15, Stubble: 5, Other: 20 };
     else if (area.type === 'Residential') base = { Vehicular: 25, Industrial: 10, Construction: 20, Stubble: 5, Other: 40 };
 
+    // Dynamic Stubble Calculation from Satellite Feed
+    const dynamicStubble = attribution.stubblePercentage;
+    const isSatelliteVerified = attribution.totalFireCount > 0;
+
+    base.Stubble = dynamicStubble;
+
     // Time of Day Adjustments
     if (hour >= 8 && hour <= 11) base.Vehicular += 15; // Morning Rush
     if (hour >= 17 && hour <= 21) base.Vehicular += 20; // Evening Rush
     if (hour >= 10 && hour <= 16) base.Industrial += 10; // Peak Factory Hours
 
-    // Seasonal Adjustments (Stubble Burning in Oct/Nov)
-    if (month === 9 || month === 10) base.Stubble += 25;
-
     // Normalize to 100%
-    const total = Object.values(base).reduce((a, b) => a + b, 0);
-    return Object.keys(base).map(name => ({
+    const sourcesToNormalize = { ...base };
+    const total = Object.values(sourcesToNormalize).reduce((a, b) => a + b, 0);
+
+    return Object.keys(sourcesToNormalize).map(name => ({
         name,
-        value: Math.round((base[name] / total) * 100)
+        value: Math.round((sourcesToNormalize[name] / total) * 100),
+        isSatelliteVerified: name === 'Stubble' ? isSatelliteVerified : false
     })).sort((a, b) => b.value - a.value);
 };
 
@@ -149,21 +181,21 @@ export const generateDenseNetwork = () => {
 
     // Delhi NCR Bounding Box
     const bounds = { n: 28.85, s: 28.35, e: 77.45, w: 76.90 };
-    const count = 150; // High density
+    const count = 300; // Increased density
 
     for (let i = 0; i < count; i++) {
         const lat = bounds.s + Math.random() * (bounds.n - bounds.s);
         const lng = bounds.w + Math.random() * (bounds.e - bounds.w);
 
         // Randomize AQI mostly in poor/severe range for Delhi
-        const baseAQI = 180 + Math.random() * 250;
+        const baseAQI = 150 + Math.random() * 350;
         const aqi = Math.round(baseAQI);
         const level = getAirQualityLevel(aqi);
 
         syntheticPoints.push({
             id: `sensor-${i}`,
             name: `Sensor node ${1000 + i}`,
-            coords: [lat, lng], // Direct coords for map
+            coords: [lat, lng],
             aqi,
             ...level,
             pollutants: calculatePollutants(aqi),
@@ -171,8 +203,5 @@ export const generateDenseNetwork = () => {
         });
     }
 
-    // Merge: For mainAreas, we need to add 'coords' property if missing, 
-    // but Map3D handles that via AREA_COORDS lookups. 
-    // To unify, let's just return the list. Map3D will handle the merge logic.
-    return syntheticPoints;
+    return [...mainAreas, ...syntheticPoints];
 };

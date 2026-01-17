@@ -1,163 +1,203 @@
 import React, { useState } from 'react';
 import {
-    Camera, MapPin, Send, ShieldCheck, ThumbsUp,
-    MessageCircle, Filter, Trophy, Coins, Zap,
-    Trash2, AlertCircle, CheckCircle, Clock
+    Camera, MapPin, ShieldCheck, ThumbsUp,
+    MessageCircle, Trophy, Coins, Zap,
+    AlertCircle, Clock, Flame, Truck, Hammer
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const CitizenScience = () => {
     const [reports, setReports] = useState([
-        { id: 1, type: 'Industrial Smoke', area: 'Okhla Phase III', severity: 'High', status: 'Verified', time: '2h ago', votes: 24, description: 'Dense yellow smoke observed from chemical unit near metro station.' },
-        { id: 2, type: 'Construction Dust', area: 'Noida Sec 62', severity: 'Medium', status: 'Pending', time: '4h ago', votes: 8, description: 'Construction site operating without water sprinkling or dust covers.' },
-        { id: 3, type: 'Open Burning', area: 'Rohini Sec 8', severity: 'High', status: 'Action Taken', time: '6h ago', votes: 42, description: 'Garbage burning in local park. Fire department notified.' },
+        { id: 1, type: 'Industrial Smoke', area: 'Okhla Phase III', severity: 'High', status: 'Verified', time: '10m ago', votes: 24, description: 'Dense yellow smoke observed from chemical unit near metro station.', author: 'Rahul S.' },
+        { id: 2, type: 'Construction Dust', area: 'Noida Sec 62', severity: 'Medium', status: 'Pending', time: '25m ago', votes: 8, description: 'Construction site operating without water sprinkling or dust covers.', author: 'Amit K.' },
+        { id: 3, type: 'Open Burning', area: 'Rohini Sec 8', severity: 'High', status: 'Action Taken', time: '1h ago', votes: 42, description: 'Garbage burning in local park. Fire department notified.', author: 'Priya M.' },
     ]);
 
-    const stats = [
-        { label: 'Total Reports', value: '1,247', icon: MessageCircle, color: 'text-primary' },
-        { label: 'Verified Cases', value: '856', icon: ShieldCheck, color: 'text-success' },
-        { label: 'Action Taken', value: '432', icon: Zap, color: 'text-warning' },
-        { label: 'Community Credits', value: '12K+', icon: Coins, color: 'text-secondary' },
-    ];
+    // Quick Action Handlers (For Demo purposes)
+    const addReport = (type) => {
+        const newReport = {
+            id: Date.now(),
+            type: type,
+            area: 'Current Location (GPS)',
+            severity: 'High',
+            status: 'Pending',
+            time: 'Just Now',
+            votes: 0,
+            description: 'New violation reported via Green Army Quick-Action.',
+            author: 'You'
+        };
+        setReports([newReport, ...reports]);
+    };
 
     return (
-        <div className="p-8 bg-background min-h-[calc(100vh-64px)] space-y-8 fade-in">
-            <div className="flex justify-between items-start mb-8">
-                <div>
-                    <h2 className="text-2xl font-bold flex items-center gap-3">
-                        <Trophy className="text-primary w-7 h-7" />
-                        Citizen Engagement Hub
+        <div className="p-8 bg-background min-h-[calc(100vh-80px)] space-y-8 text-white">
+
+            {/* 1. HERO BRANDING SECTION */}
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-green-900/40 to-emerald-900/40 border border-green-500/20 p-10 text-center">
+                <div className="relative z-10">
+                    <h2 className="text-4xl font-black mb-2 bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-emerald-300 tracking-tight">
+                        DELHI GREEN ARMY
                     </h2>
-                    <p className="text-gray-500 text-sm mt-1">Report violations, verify incidents and earn Air Credits</p>
-                </div>
+                    <p className="text-gray-400 max-w-xl mx-auto text-sm">
+                        Join 12,000+ citizens. Report pollution, earn <span className="text-yellow-400 font-bold">Green Credits</span>, and redeem for Metro rewards.
+                    </p>
 
-                <button className="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-2xl font-bold text-sm lg:text-base hover:bg-primary/90 transition-all shadow-xl shadow-primary/20">
-                    <Camera className="w-5 h-5" />
-                    Report Incident
-                </button>
-            </div>
-
-            {/* Stats Dashboard */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                {stats.map((s, i) => (
-                    <div key={i} className="glass p-6 rounded-3xl border-white/5 relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full -mr-12 -mt-12 blur-2xl group-hover:bg-primary/10 transition-all duration-700"></div>
-                        <div className="flex items-center gap-4 relative z-10">
-                            <div className={`p-3 bg-surface rounded-2xl ${s.color}`}>
-                                <s.icon className="w-6 h-6" />
-                            </div>
-                            <div>
-                                <p className="text-[10px] text-gray-500 uppercase font-bold tracking-widest">{s.label}</p>
-                                <p className="text-xl font-black font-mono">{s.value}</p>
-                            </div>
+                    {/* Live Counters */}
+                    <div className="flex justify-center gap-12 mt-8">
+                        <div className="text-center">
+                            <p className="text-3xl font-black text-white">12,450</p>
+                            <p className="text-[10px] text-green-400 uppercase font-bold tracking-widest">Active Guardians</p>
+                        </div>
+                        <div className="text-center">
+                            <p className="text-3xl font-black text-white">892</p>
+                            <p className="text-[10px] text-green-400 uppercase font-bold tracking-widest">Violations Stopped</p>
                         </div>
                     </div>
-                ))}
+                </div>
+                {/* Background Glow */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-green-500/10 rounded-full blur-[100px]"></div>
             </div>
 
             <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
-                {/* Community Feed */}
-                <div className="xl:col-span-8 space-y-6">
-                    <div className="flex items-center justify-between px-2">
-                        <h3 className="font-bold text-lg">Active Reports Feed</h3>
-                        <button className="flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-white transition-colors">
-                            <Filter className="w-4 h-4" />
-                            Recent First
-                        </button>
+
+                {/* LEFT COLUMN: Reporting & Feed */}
+                <div className="xl:col-span-8 space-y-8">
+
+                    {/* Quick Report Actions */}
+                    <div className="bg-white/5 border border-white/10 p-6 rounded-3xl">
+                        <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
+                            <Camera className="w-5 h-5 text-blue-400" />
+                            Quick Report
+                        </h3>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <button onClick={() => addReport('Waste Burning')} className="p-4 rounded-2xl bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 transition-all flex flex-col items-center gap-2 group">
+                                <Flame className="w-6 h-6 text-red-500 group-hover:scale-110 transition-transform" />
+                                <span className="text-xs font-bold text-red-300">Burning</span>
+                            </button>
+                            <button onClick={() => addReport('Construction Dust')} className="p-4 rounded-2xl bg-orange-500/10 border border-orange-500/20 hover:bg-orange-500/20 transition-all flex flex-col items-center gap-2 group">
+                                <Hammer className="w-6 h-6 text-orange-500 group-hover:scale-110 transition-transform" />
+                                <span className="text-xs font-bold text-orange-300">Dust</span>
+                            </button>
+                            <button onClick={() => addReport('Industrial Smoke')} className="p-4 rounded-2xl bg-gray-500/10 border border-gray-500/20 hover:bg-gray-500/20 transition-all flex flex-col items-center gap-2 group">
+                                <Zap className="w-6 h-6 text-gray-400 group-hover:scale-110 transition-transform" />
+                                <span className="text-xs font-bold text-gray-300">Industry</span>
+                            </button>
+                            <button onClick={() => addReport('Vehicle Emission')} className="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20 hover:bg-blue-500/20 transition-all flex flex-col items-center gap-2 group">
+                                <Truck className="w-6 h-6 text-blue-400 group-hover:scale-110 transition-transform" />
+                                <span className="text-xs font-bold text-blue-300">Vehicle</span>
+                            </button>
+                        </div>
                     </div>
 
+                    {/* Live Feed */}
                     <div className="space-y-4">
-                        {reports.map((report) => (
-                            <div key={report.id} className="glass p-6 rounded-3xl border-white/5 hover:bg-surface/50 transition-all">
-                                <div className="flex justify-between items-start mb-4">
-                                    <div className="flex gap-4">
-                                        <div className="w-12 h-12 bg-surface rounded-2xl border border-white/5 flex items-center justify-center">
-                                            <AlertCircle className={`w-6 h-6 ${report.severity === 'High' ? 'text-danger' : 'text-warning'}`} />
-                                        </div>
-                                        <div>
-                                            <h4 className="font-bold text-gray-200">{report.type}</h4>
-                                            <p className="text-xs text-gray-500 flex items-center gap-2 mt-1">
-                                                <MapPin className="w-3 h-3 text-primary" />
-                                                {report.area} • {report.time}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${report.status === 'Verified' ? 'bg-success/10 text-success border border-success/20' :
-                                        report.status === 'Action Taken' ? 'bg-primary/10 text-primary border border-primary/20' :
-                                            'bg-warning/10 text-warning border border-warning/20'
-                                        }`}>
-                                        {report.status}
-                                    </div>
-                                </div>
-
-                                <p className="text-sm text-gray-400 mb-6 leading-relaxed">
-                                    {report.description}
-                                </p>
-
-                                <div className="flex items-center justify-between border-t border-white/5 pt-4">
-                                    <div className="flex items-center gap-6">
-                                        <button className="flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-white group">
-                                            <ThumbsUp className="w-4 h-4 group-hover:text-primary transition-colors" />
-                                            Verify ({report.votes})
-                                        </button>
-                                        <button className="flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-white group">
-                                            <MessageCircle className="w-4 h-4 group-hover:text-primary transition-colors" />
-                                            Comments
-                                        </button>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-[10px] text-gray-600 font-bold uppercase tracking-widest">
-                                        <Clock className="w-3 h-3" />
-                                        Last Updated {report.time}
-                                    </div>
-                                </div>
+                        <div className="flex items-center justify-between px-2">
+                            <h3 className="font-bold text-lg">Community Watch Feed</h3>
+                            <div className="flex items-center gap-2">
+                                <span className="animate-pulse w-2 h-2 rounded-full bg-green-500"></span>
+                                <span className="text-xs font-bold text-green-500">LIVE</span>
                             </div>
-                        ))}
+                        </div>
+
+                        <AnimatePresence>
+                            {reports.map((report) => (
+                                <motion.div
+                                    key={report.id}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, x: -20 }}
+                                    className="glass p-6 rounded-3xl border-white/5 hover:bg-white/5 transition-all"
+                                >
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div className="flex gap-4">
+                                            <div className="w-12 h-12 bg-white/5 rounded-2xl border border-white/5 flex items-center justify-center">
+                                                <AlertCircle className={`w-6 h-6 ${report.severity === 'High' ? 'text-red-500' : 'text-orange-500'}`} />
+                                            </div>
+                                            <div>
+                                                <h4 className="font-bold text-gray-200">{report.type}</h4>
+                                                <p className="text-xs text-gray-500 flex items-center gap-2 mt-1">
+                                                    <MapPin className="w-3 h-3 text-blue-400" />
+                                                    {report.area} • {report.time}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${report.status === 'Verified' ? 'bg-green-500/10 text-green-400 border border-green-500/20' :
+                                                report.status === 'Action Taken' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' :
+                                                    'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20'
+                                            }`}>
+                                            {report.status}
+                                        </div>
+                                    </div>
+
+                                    <p className="text-sm text-gray-400 mb-6 leading-relaxed pl-16">
+                                        <span className="text-white font-bold">{report.author}:</span> {report.description}
+                                    </p>
+
+                                    <div className="flex items-center justify-between border-t border-white/5 pt-4 pl-16">
+                                        <div className="flex items-center gap-6">
+                                            <button className="flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-green-400 group transition-colors">
+                                                <ThumbsUp className="w-4 h-4" />
+                                                Verify ({report.votes})
+                                            </button>
+                                            <button className="flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-white group transition-colors">
+                                                <MessageCircle className="w-4 h-4" />
+                                                Discuss
+                                            </button>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </AnimatePresence>
                     </div>
                 </div>
 
-                {/* Gamification Sidebar */}
+                {/* RIGHT COLUMN: Gamification Sidebar */}
                 <div className="xl:col-span-4 space-y-8">
-                    {/* Air Credits Balance */}
-                    <div className="glass p-8 rounded-3xl bg-gradient-to-br from-secondary/10 to-transparent border-secondary/20 flex flex-col items-center text-center">
-                        <div className="p-4 bg-secondary/20 rounded-full mb-4">
-                            <Coins className="w-8 h-8 text-secondary" />
+                    {/* Credits Card */}
+                    <div className="glass p-8 rounded-3xl bg-gradient-to-br from-yellow-900/10 to-transparent border-yellow-500/20 flex flex-col items-center text-center relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-500/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
+                        <div className="p-4 bg-yellow-500/20 rounded-full mb-4 text-yellow-400">
+                            <Coins className="w-8 h-8" />
                         </div>
-                        <p className="text-xs font-bold text-secondary uppercase tracking-widest mb-2">Your Air Credits</p>
-                        <div className="text-5xl font-black mb-2 font-mono">4,850</div>
-                        <p className="text-[10px] text-gray-500 max-w-[180px]">Great work! You've offset 24kg of CO2 this month.</p>
+                        <p className="text-xs font-bold text-yellow-500 uppercase tracking-widest mb-2">My Green Credits</p>
+                        <div className="text-5xl font-black mb-2 font-mono text-white">4,850</div>
+                        <p className="text-[10px] text-gray-400 max-w-[180px]">Redeem for Metro passes or donate to tree planting.</p>
 
-                        <div className="w-full h-1.5 bg-background rounded-full mt-6 overflow-hidden">
-                            <div className="h-full bg-secondary" style={{ width: '65%' }}></div>
+                        <div className="w-full h-1.5 bg-gray-800 rounded-full mt-6 overflow-hidden">
+                            <div className="h-full bg-yellow-500" style={{ width: '65%' }}></div>
                         </div>
-                        <p className="text-[10px] text-gray-600 mt-2 font-bold uppercase">150 credits to next level</p>
+                        <p className="text-[10px] text-gray-500 mt-2 font-bold uppercase">Rank: <span className="text-white">Guardian Lvl 4</span></p>
                     </div>
 
-                    {/* Activity Leaderboard */}
+                    {/* Leaderboard */}
                     <div className="glass p-6 rounded-3xl border-white/5">
                         <h4 className="font-bold text-sm uppercase tracking-widest text-gray-500 mb-6 flex items-center gap-2">
-                            <Trophy className="w-4 h-4 text-warning" />
-                            Impact Leaderboard
+                            <Trophy className="w-4 h-4 text-yellow-400" />
+                            Top Guardians
                         </h4>
-                        <div className="space-y-6">
+                        <div className="space-y-4">
                             {[
                                 { name: 'Aditya S.', credits: 12450, rank: 1, pfp: 'AS' },
                                 { name: 'Priya M.', credits: 10200, rank: 2, pfp: 'PM' },
-                                { name: 'Rohan K.', credits: 8900, rank: 3, pfp: 'RK' },
-                                { name: 'Sameer V.', credits: 7600, rank: 4, pfp: 'SV' },
+                                { name: 'Sahil T.', credits: 8900, rank: 3, pfp: 'ST' },
                             ].map((user) => (
-                                <div key={user.rank} className="flex items-center justify-between">
+                                <div key={user.rank} className="flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-colors cursor-pointer">
                                     <div className="flex items-center gap-3">
-                                        <span className={`text-xs font-black w-4 ${user.rank === 1 ? 'text-warning' : 'text-gray-600'}`}>#{user.rank}</span>
-                                        <div className="w-8 h-8 rounded-full bg-surface border border-white/5 flex items-center justify-center text-[10px] font-bold text-gray-300">
+                                        <span className={`text-xs font-black w-5 h-5 flex items-center justify-center rounded-full ${user.rank === 1 ? 'bg-yellow-400 text-black' : 'text-gray-500 bg-gray-800'}`}>
+                                            {user.rank}
+                                        </span>
+                                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-[10px] font-bold text-white">
                                             {user.pfp}
                                         </div>
-                                        <span className="text-xs font-bold">{user.name}</span>
+                                        <span className="text-xs font-bold text-gray-200">{user.name}</span>
                                     </div>
-                                    <span className="text-xs font-black text-white font-mono">{user.credits.toLocaleString()} pts</span>
+                                    <span className="text-xs font-black text-green-400 font-mono">{user.credits.toLocaleString()}</span>
                                 </div>
                             ))}
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
     );

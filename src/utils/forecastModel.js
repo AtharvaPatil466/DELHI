@@ -4,8 +4,25 @@
  */
 
 import { getCurrentAQI } from './dataGenerator';
+import mlForecastData from '../../ml/output/aqi_forecast.json';
+
+export const getMLForecast = () => {
+    return mlForecastData.aqi_forecast.map(item => ({
+        time: new Date(item.date).toLocaleDateString([], { month: 'short', day: 'numeric' }),
+        timestamp: new Date(item.date).toISOString(),
+        aqi: item.aqi,
+        confidenceLow: Math.round(item.aqi * 0.9),
+        confidenceHigh: Math.round(item.aqi * 1.1),
+        isML: true
+    }));
+};
 
 export const predictAQI = (areaId, hours = 24) => {
+    // If requesting longer than 72h, use the ML model output (7 days)
+    if (hours > 72) {
+        return getMLForecast();
+    }
+
     const predictions = [];
     const now = new Date();
     const currentAQI = getCurrentAQI(areaId, now);

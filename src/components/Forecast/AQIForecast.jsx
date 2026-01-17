@@ -125,12 +125,15 @@ const AQIForecast = () => {
                                 <div className="flex justify-between items-center mb-6 md:mb-8">
                                     <h3 className="font-bold text-base md:text-lg flex items-center gap-2">
                                         {viewMode === 'forecast' ? <Calendar className="w-4 h-4 md:w-5 md:h-5 text-primary" /> : <History className="w-4 h-4 md:w-5 md:h-5 text-primary" />}
-                                        {viewMode === 'forecast' ? `AQI Prediction (${forecastDays}h Window)` : 'Annual Pollution Cycle'}
+                                        {viewMode === 'forecast'
+                                            ? `AQI Prediction (${forecastDays > 72 ? '7-Day' : forecastDays + 'h'} Window)`
+                                            : 'Annual Pollution Cycle'}
                                     </h3>
                                     {viewMode === 'forecast' && (
                                         <div className="flex bg-background rounded-lg p-1 border border-white/5">
                                             <button onClick={() => setForecastDays(24)} className={`px-2 md:px-3 py-1 text-[10px] font-bold rounded-md transition-all ${forecastDays === 24 ? 'bg-surface text-white' : 'text-gray-500'}`}>24H</button>
                                             <button onClick={() => setForecastDays(72)} className={`px-2 md:px-3 py-1 text-[10px] font-bold rounded-md transition-all ${forecastDays === 72 ? 'bg-surface text-white' : 'text-gray-500'}`}>72H</button>
+                                            <button onClick={() => setForecastDays(168)} className={`px-2 md:px-3 py-1 text-[10px] font-bold rounded-md transition-all ${forecastDays === 168 ? 'bg-surface text-white' : 'text-gray-500'}`}>7D (ML)</button>
                                         </div>
                                     )}
                                 </div>
