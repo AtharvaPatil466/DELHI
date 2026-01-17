@@ -1,0 +1,10 @@
+
+fastapi
+uvicorn
+pandas
+numpy
+dowhy
+pyarrow
+scikit-learn
+matplotlib
+graphviz

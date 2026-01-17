@@ -85,12 +85,6 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
 
             {/* Settings & Profile - Adjusted for mobile */}
             <div className="hidden md:flex flex-col gap-4 items-center mb-4 w-full px-3">
-                <NavItem
-                    icon={Settings}
-                    label="Settings"
-                    active={activeTab === 'settings'}
-                    onClick={() => setActiveTab('settings')}
-                />
                 <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-xs font-bold text-white shadow-lg cursor-pointer hover:scale-105 transition-transform">
                     JD
                 </div>

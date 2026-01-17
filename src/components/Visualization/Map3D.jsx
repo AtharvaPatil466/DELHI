@@ -444,13 +444,62 @@ const Map3D = ({ setActiveTab }) => {
                             </div>
                         </div>
 
-                        <MapContainer center={[29.2, 76.5]} zoom={8} scrollWheelZoom={true} style={{ height: '100%', width: '100%' }} zoomControl={false}>
+                        <MapContainer
+                            center={[29.8, 75.8]}
+                            zoom={7}
+                            minZoom={6}
+                            maxBounds={[[27.5, 72.5], [32.5, 79.5]]}
+                            scrollWheelZoom={true}
+                            style={{ height: '100%', width: '100%' }}
+                            zoomControl={false}
+                        >
                             <MapResizer />
                             <ZoomControl position="bottomright" />
                             <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" attribution='&copy; CARTO' />
 
                             {activeLayer === 'stations' && stations.map(s => (
-                                <Marker key={s.id} position={s.coords} icon={createAQIIcon(s.aqi, s.color)} />
+                                <Marker key={s.id} position={s.coords} icon={createAQIIcon(s.aqi, s.color)}>
+                                    <Popup className="glass-popup">
+                                        <div className="min-w-[180px] p-1 font-sans text-zinc-800">
+                                            <div className="flex justify-between items-start mb-2 border-b border-gray-200/50 pb-2">
+                                                <div>
+                                                    <h3 className="font-bold text-xs uppercase tracking-tight text-zinc-900 line-clamp-1">{s.name}</h3>
+                                                    <span className="text-[9px] bg-zinc-100 text-zinc-500 px-1.5 py-0.5 rounded uppercase tracking-widest font-bold">Sensor Node</span>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex items-center justify-between mb-3">
+                                                <div className="flex flex-col">
+                                                    <span className="text-[9px] text-zinc-400 uppercase font-bold tracking-wider">Current AQI</span>
+                                                    <span className="text-3xl font-black leading-none" style={{ color: s.color }}>{s.aqi}</span>
+                                                </div>
+                                                <div className="text-right">
+                                                    <div className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: s.color }}>{s.level || 'Poor'}</div>
+                                                    <div className="text-[9px] text-zinc-400">Primary Pollutant: PM2.5</div>
+                                                </div>
+                                            </div>
+
+                                            <div className="grid grid-cols-2 gap-2 mb-3">
+                                                <div className="bg-zinc-50 p-2 rounded border border-zinc-100">
+                                                    <div className="text-[8px] text-zinc-400 uppercase font-bold mb-0.5">PM2.5</div>
+                                                    <div className="text-xs font-mono font-bold text-zinc-700">{s.pollutants?.pm25} µg/m³</div>
+                                                </div>
+                                                <div className="bg-zinc-50 p-2 rounded border border-zinc-100">
+                                                    <div className="text-[8px] text-zinc-400 uppercase font-bold mb-0.5">PM10</div>
+                                                    <div className="text-xs font-mono font-bold text-zinc-700">{s.pollutants?.pm10} µg/m³</div>
+                                                </div>
+                                            </div>
+
+                                            <button
+                                                onClick={() => setActiveTab('source')}
+                                                className="w-full py-2 bg-zinc-900 text-white text-[10px] font-bold uppercase rounded hover:bg-zinc-800 transition-colors flex items-center justify-center gap-1.5"
+                                            >
+                                                <span>View Analysis</span>
+                                                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                                            </button>
+                                        </div>
+                                    </Popup>
+                                </Marker>
                             ))}
 
                             {(activeLayer === 'fires' || activeLayer === 'zones') && fireFeed.allFires.map(f => (

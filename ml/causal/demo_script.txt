@@ -1,0 +1,20 @@
+
+--- HACKATHON DEMO SCRIPT: PROVING CAUSALITY ---
+
+[Intro]
+"Judges, most air quality dashboards show you a chart and say 'Fires are up, so AQI is up.' That's just correlation. But to make real policy, we need to prove CAUSALITY."
+
+[Navigate to Source Analysis Tab]
+"In our 'Causal Intelligence Engine', we aren't just looking at overlapping lines. We are using the DoWhy library—pioneered by Microsoft Research—to build a structural causal model."
+
+[Show the Causal Graph]
+"Here is our DAG—our Directed Acyclic Graph. We've accounted for every major confounder: wind direction, traffic, and temperature. We use Propensity Score Matching to ask: 'On two identical days in Delhi—same wind, same traffic—what happens if one day has stubble fires and the other doesn't?'"
+
+[Show the Main Result]
+"The result is scientifically verified. Eliminating all crop fires wouldn't just 'help'—it causally reduces AQI by average 87 points. We've even run Placebo tests and Subset refutations to ensure this isn't a statistical fluke."
+
+[Use the Slider]
+"As a policy maker, you can use our simulator. If we reduce fires by 50% via machinery subsidies, our causal model predicts a 43-point AQI drop with a 95% confidence interval."
+
+[Closing]
+"This isn't just a dashboard. It's an intervention planning tool backed by causal inference."

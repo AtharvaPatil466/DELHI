@@ -1,12 +1,14 @@
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, ReferenceLine } from 'recharts';
-import { BarChart2, Activity, Shield, Brain, Microscope, TrendingUp, Target, Home, TrendingDown, CheckCircle as CheckCircleIcon, Radar, HelpCircle, Flame, Loader2 } from 'lucide-react';
+import { BarChart2, Activity, Shield, Brain, Microscope, TrendingUp, Target, Home, TrendingDown, CheckCircle as CheckCircleIcon, Radar, HelpCircle, Flame, Loader2, Globe, AlertTriangle } from 'lucide-react';
 import { calculateSources, getCurrentAQI, AREAS } from '../../utils/dataGenerator';
 import { generateSourceExplanation, generateRecommendations, getAreaMetadata } from '../../utils/sourceInsights';
 import { fetchFireDataFeed } from '../../utils/satelliteData';
 const FireScatterPlot = React.lazy(() => import('./FireScatterPlot'));
 const FireClusterAnalysis = React.lazy(() => import('./FireClusterAnalysis'));
+// Lazy load the new Causal Panel for performance
+const CausalInferencePanel = React.lazy(() => import('./CausalInferencePanel'));
 import FireIntelligenceCenter from './FireIntelligenceCenter';
 import DrillDownModal from './DrillDownModal';
 import { Suspense } from 'react';
@@ -84,6 +86,124 @@ const SourceAnalysis = () => {
         });
     };
 
+    // --- COMPARISON DASHBOARD LOGIC (NEW) ---
+    const comparisonData = useMemo(() => {
+        if (selectedArea !== 'overview') return null;
+
+        return AREAS.slice(0, 8).map(area => {
+            const sources = calculateSources(area.id, currentHour, new Date().getMonth());
+            const aqi = getCurrentAQI(area.id);
+            return {
+                name: area.name,
+                aqi,
+                ...sources.reduce((acc, curr) => ({ ...acc, [curr.name]: curr.value }), {})
+            };
+        }).sort((a, b) => b.aqi - a.aqi);
+    }, [selectedArea, currentHour]);
+
+    if (selectedArea === 'overview') {
+        return (
+            <div className="p-4 md:p-8 min-h-screen text-text pb-24 md:pb-20 fade-in space-y-6">
+                {/* Re-render Header Logic for Overview */}
+                <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6">
+                    <div>
+                        <h2 className="text-lg md:text-xl font-bold flex items-center gap-2 md:gap-3">
+                            <Brain className="w-5 h-5 text-primary" />
+                            POLLUTION SOURCE INTELLIGENCE
+                        </h2>
+                        <p className="text-muted text-xs md:text-sm mt-1">Cross-Region Attribution Analysis</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={() => setSelectedArea('overview')}
+                            className={`px-3 py-2 rounded-lg text-[10px] md:text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2 ${selectedArea === 'overview'
+                                ? 'bg-primary text-white shadow-lg shadow-primary/20 ring-1 ring-primary/50'
+                                : 'bg-surface hover:bg-white/5 text-muted hover:text-white border border-white/5'
+                                }`}
+                        >
+                            <Globe className="w-3.5 h-3.5" />
+                            OVERVIEW
+                        </button>
+
+                        <div className="relative group">
+                            <select
+                                value={selectedArea === 'overview' ? '' : selectedArea}
+                                onChange={(e) => setSelectedArea(e.target.value)}
+                                className="appearance-none bg-surface border border-white/5 text-white text-xs font-bold rounded-lg pl-3 pr-8 py-2 outline-none focus:ring-1 focus:ring-primary w-[180px] cursor-pointer hover:bg-white/5 transition-colors"
+                            >
+                                <option value="" disabled>Select Region...</option>
+                                {AREAS.map(area => (
+                                    <option key={area.id} value={area.id} className="bg-zinc-900 text-white">
+                                        {area.name}
+                                    </option>
+                                ))}
+                            </select>
+                            <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
+                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-12 gap-6">
+                    {/* 1. Comparison Chart - Stubble Impact */}
+                    <div className="col-span-12 lg:col-span-8 bg-surface/40 border border-border rounded-xl p-6 backdrop-blur-sm">
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                                <BarChart2 className="w-4 h-4 text-primary" />
+                                Regional Source Breakdown
+                            </h3>
+                            <div className="flex items-center gap-4">
+                                <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full" style={{ background: COLORS.Stubble }}></div><span className="text-[10px] text-gray-400 uppercase">Stubble</span></div>
+                                <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full" style={{ background: COLORS.Vehicular }}></div><span className="text-[10px] text-gray-400 uppercase">Traffic</span></div>
+                                <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full" style={{ background: COLORS.Industrial }}></div><span className="text-[10px] text-gray-400 uppercase">Industry</span></div>
+                            </div>
+                        </div>
+                        <div className="h-80">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={comparisonData} layout="vertical" margin={{ left: 0, right: 20 }}>
+                                    <XAxis type="number" hide />
+                                    <YAxis dataKey="name" type="category" width={100} tick={{ fill: '#a1a1aa', fontSize: 10, fontWeight: 700 }} axisLine={false} tickLine={false} />
+                                    <Tooltip contentStyle={{ backgroundColor: '#000', border: '1px solid #333' }} />
+                                    <Bar dataKey="Stubble" stackId="a" fill={COLORS.Stubble} barSize={20} radius={[0, 4, 4, 0]} />
+                                    <Bar dataKey="Vehicular" stackId="a" fill={COLORS.Vehicular} barSize={20} />
+                                    <Bar dataKey="Industrial" stackId="a" fill={COLORS.Industrial} barSize={20} />
+                                    <Bar dataKey="Construction" stackId="a" fill={COLORS.Construction} barSize={20} />
+                                    <Bar dataKey="Other" stackId="a" fill={COLORS.Other} barSize={20} />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+
+                    {/* 2. Top Polluters List */}
+                    <div className="col-span-12 lg:col-span-4 bg-surface/40 border border-border rounded-xl p-6 backdrop-blur-sm">
+                        <h3 className="text-xs font-bold text-white uppercase tracking-wider mb-6 flex items-center gap-2">
+                            <AlertTriangle className="w-4 h-4 text-red-500" />
+                            Critical Hotspots (AQI)
+                        </h3>
+                        <div className="space-y-3">
+                            {comparisonData.slice(0, 5).map((area, i) => (
+                                <div key={i} className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/5">
+                                    <div className="flex items-center gap-3">
+                                        <div className="text-xs font-mono font-bold text-zinc-500">0{i + 1}</div>
+                                        <div>
+                                            <div className="text-xs font-bold text-white">{area.name}</div>
+                                            <div className="text-[9px] text-zinc-500 uppercase">Primary: {area.Stubble > 20 ? 'Crop Fires' : 'Vehicular'}</div>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <div className="text-sm font-black text-white">{area.aqi}</div>
+                                        <div className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-red-500/20 text-red-400">SEVERE</div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="p-4 md:p-8 min-h-screen text-text pb-24 md:pb-20 fade-in space-y-6 md:space-y-8">
             {/* Header Section */}
@@ -96,20 +216,36 @@ const SourceAnalysis = () => {
                     <p className="text-muted text-xs md:text-sm mt-1">Real-time attribution modeling & AI-driven mitigation strategies</p>
                 </div>
 
-                {/* Area Selector Tabs (Segmented Control) */}
-                <div className="flex bg-surface p-1 rounded-lg border border-border overflow-x-auto w-full xl:w-auto no-scrollbar">
-                    {AREAS.slice(0, 5).map(area => (
-                        <button
-                            key={area.id}
-                            onClick={() => setSelectedArea(area.id)}
-                            className={`px-3 py-1.5 rounded-md text-[10px] md:text-xs font-medium transition-all whitespace-nowrap ${selectedArea === area.id
-                                ? 'bg-background text-white shadow-sm border border-border'
-                                : 'text-muted hover:text-white hover:bg-white/5'
-                                }`}
+                {/* Area Selector Tabs (Dropdown) */}
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={() => setSelectedArea('overview')}
+                        className={`px-3 py-2 rounded-lg text-[10px] md:text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2 ${selectedArea === 'overview'
+                            ? 'bg-primary text-white shadow-lg shadow-primary/20 ring-1 ring-primary/50'
+                            : 'bg-surface hover:bg-white/5 text-muted hover:text-white border border-white/5'
+                            }`}
+                    >
+                        <Globe className="w-3.5 h-3.5" />
+                        OVERVIEW
+                    </button>
+
+                    <div className="relative group">
+                        <select
+                            value={selectedArea === 'overview' ? '' : selectedArea}
+                            onChange={(e) => setSelectedArea(e.target.value)}
+                            className="appearance-none bg-surface border border-white/5 text-white text-xs font-bold rounded-lg pl-3 pr-8 py-2 outline-none focus:ring-1 focus:ring-primary w-[180px] cursor-pointer hover:bg-white/5 transition-colors"
                         >
-                            {area.name}
-                        </button>
-                    ))}
+                            <option value="" disabled>Select Region...</option>
+                            {AREAS.map(area => (
+                                <option key={area.id} value={area.id} className="bg-zinc-900 text-white">
+                                    {area.name}
+                                </option>
+                            ))}
+                        </select>
+                        <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -295,6 +431,13 @@ const SourceAnalysis = () => {
                 {/* Fire Intelligence Hub (NEW) */}
                 <div className="col-span-12">
                     <FireIntelligenceCenter fireFeed={fireFeed} />
+                </div>
+
+                {/* --- NEW CAUSAL INFERENCE MODULE --- */}
+                <div className="col-span-12">
+                    <Suspense fallback={<div className="h-64 bg-surface/40 animate-pulse rounded-xl" />}>
+                        <CausalInferencePanel />
+                    </Suspense>
                 </div>
 
                 {/* 5. Regional Satellite Intelligence (NEW) - Col Span 12 */}

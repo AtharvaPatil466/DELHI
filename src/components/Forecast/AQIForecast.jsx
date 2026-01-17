@@ -223,9 +223,9 @@ const AQIForecast = () => {
                 {/* Sidebar Insights - REPLACED WITH EXPLAINABLE AI PANEL */}
                 <div className="xl:col-span-4 flex flex-col gap-8">
                     <ForecastReasoningPanel
-                        targetTime={SAMPLE_FORECAST_REASONING.targetTime}
-                        currentAQI={SAMPLE_FORECAST_REASONING.currentAQI}
-                        predictedAQI={SAMPLE_FORECAST_REASONING.predictedAQI}
+                        targetTime="Tomorrow 9:00 AM"
+                        currentAQI={forecastData[0]?.aqi || 0}
+                        predictedAQI={forecastData[24]?.aqi || forecastData[forecastData.length - 1]?.aqi || 0}
                         factors={SAMPLE_FORECAST_REASONING.factors}
                         confidence={SAMPLE_FORECAST_REASONING.confidence}
                     />

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Bell, Calendar, CloudRain, Wind, Thermometer } from 'lucide-react';
+import { Search, Calendar, CloudRain, Wind, Thermometer } from 'lucide-react';
 
 const Header = ({ title }) => {
     const currentStatus = "Poor"; // Dynamic
@@ -33,16 +33,6 @@ const Header = ({ title }) => {
                 </div>
 
                 <div className="flex items-center gap-2 md:gap-3">
-                    <div className="flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl md:rounded-2xl">
-                        <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
-                        <span className="text-[10px] md:text-xs font-bold text-emerald-500 uppercase tracking-wider">Live</span>
-                    </div>
-
-                    <div className="hidden sm:block h-8 w-[1px] bg-white/10 mx-1 md:mx-2"></div>
-
-                    <button className="p-2 md:p-3 hover:bg-white/10 rounded-xl text-zinc-400 hover:text-white transition-all hover:scale-105 active:scale-95">
-                        <Bell className="w-4 h-4 md:w-5 md:h-5" />
-                    </button>
 
                     <div className="hidden lg:flex items-center gap-3 px-4 py-2 bg-white/5 border border-white/5 rounded-2xl hover:bg-white/10 transition-colors cursor-pointer group">
                         <Calendar className="w-4 h-4 text-zinc-400 group-hover:text-white transition-colors" />
