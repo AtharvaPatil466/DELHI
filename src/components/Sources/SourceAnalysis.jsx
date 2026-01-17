@@ -1,0 +1,306 @@
+import React, { useState, useMemo } from 'react';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, ReferenceLine } from 'recharts';
+import { BarChart2, Activity, Shield, Brain, Microscope, TrendingUp, Target, Home, TrendingDown, CheckCircle as CheckCircleIcon } from 'lucide-react';
+import { calculateSources, getCurrentAQI, AREAS } from '../../utils/dataGenerator';
+import { generateSourceExplanation, generateRecommendations, getAreaMetadata } from '../../utils/sourceInsights';
+import DrillDownModal from './DrillDownModal';
+
+const SourceAnalysis = () => {
+    const [selectedArea, setSelectedArea] = useState('anand-vihar');
+    const [currentHour, setCurrentHour] = useState(new Date().getHours());
+    const [modalData, setModalData] = useState({ isOpen: false, type: null, color: null });
+    const [activeSource, setActiveSource] = useState(null); // For legend filtering
+    const [actionView, setActionView] = useState('authorities'); // 'authorities' or 'citizens'
+
+    // Generate 24h Data
+    const generateHourlyData = () => {
+        const data = [];
+        for (let i = 6; i <= 23; i += 3) { // 3-hour intervals
+            const sources = calculateSources(selectedArea, i, new Date().getMonth());
+            data.push({
+                time: `${i.toString().padStart(2, '0')}:00`,
+                hour: i,
+                ...sources.reduce((acc, curr) => ({ ...acc, [curr.name]: curr.value }), {})
+            });
+        }
+        return data;
+    };
+
+    const hourlyData = useMemo(() => generateHourlyData(), [selectedArea]);
+    const currentSources = useMemo(() => calculateSources(selectedArea, currentHour, new Date().getMonth()), [selectedArea, currentHour]);
+
+    // AI & Meta Data
+    const areaMeta = getAreaMetadata(selectedArea);
+    const explanation = useMemo(() => generateSourceExplanation(selectedArea, currentSources, {}, currentHour), [selectedArea, currentSources, currentHour]);
+    const recommendations = useMemo(() => generateRecommendations(currentSources, selectedArea, getCurrentAQI(selectedArea)), [currentSources, selectedArea]);
+
+    // New Muted/Scientific Palette
+    const COLORS = {
+        'Vehicular': '#3b82f6',   // Blue-500
+        'Industrial': '#64748b',  // Slate-500
+        'Construction': '#f59e0b', // Amber-500
+        'Stubble': '#d97706',     // Amber-600
+        'Other': '#10b981'        // Emerald-500
+    };
+
+    const handlePieClick = (data) => {
+        setModalData({
+            isOpen: true,
+            type: data.name,
+            color: COLORS[data.name]
+        });
+    };
+
+    return (
+        <div className="p-4 md:p-8 min-h-screen text-text pb-24 md:pb-20 fade-in space-y-6 md:space-y-8">
+            {/* Header Section */}
+            <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6">
+                <div>
+                    <h2 className="text-lg md:text-xl font-bold flex items-center gap-2 md:gap-3">
+                        <Brain className="w-4.5 h-4.5 md:w-5 md:h-5 text-primary" />
+                        POLLUTION SOURCE INTELLIGENCE
+                    </h2>
+                    <p className="text-muted text-xs md:text-sm mt-1">Real-time attribution modeling & AI-driven mitigation strategies</p>
+                </div>
+
+                {/* Area Selector Tabs (Segmented Control) */}
+                <div className="flex bg-surface p-1 rounded-lg border border-border overflow-x-auto w-full xl:w-auto no-scrollbar">
+                    {AREAS.slice(0, 5).map(area => (
+                        <button
+                            key={area.id}
+                            onClick={() => setSelectedArea(area.id)}
+                            className={`px-3 py-1.5 rounded-md text-[10px] md:text-xs font-medium transition-all whitespace-nowrap ${selectedArea === area.id
+                                ? 'bg-background text-white shadow-sm border border-border'
+                                : 'text-muted hover:text-white hover:bg-white/5'
+                                }`}
+                        >
+                            {area.name}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            {/* BENTO GRID LAYOUT */}
+            <div className="grid grid-cols-12 gap-6">
+
+                {/* 1. Real-time Attribution (Donut) - Col Span 4 */}
+                <div className="col-span-12 lg:col-span-4 bg-surface/40 border border-border rounded-xl p-4 md:p-6 backdrop-blur-sm relative group hover:border-border/80 transition-colors">
+                    <div className="flex justify-between items-center mb-4 md:mb-6">
+                        <h3 className="text-[10px] md:text-xs font-bold text-muted uppercase tracking-wider flex items-center gap-2">
+                            <Activity className="w-3 md:w-3.5 h-3 md:h-3.5 text-primary" />
+                            Real-time Attribution
+                        </h3>
+                        <div className="flex items-center gap-1.5 px-2 py-0.5 bg-success/10 border border-success/20 rounded text-[9px] md:text-[10px] font-mono text-success">
+                            93% CONF
+                        </div>
+                    </div>
+
+                    {/* AI Insight Box (Requested Feature) */}
+                    <div className="mb-4 p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-lg flex items-start gap-2.5 md:gap-3">
+                        <div className="p-1.5 bg-indigo-500/20 rounded-md shrink-0">
+                            <Brain className="w-3 md:w-3.5 h-3 md:h-3.5 text-indigo-400" />
+                        </div>
+                        <div>
+                            <p className="text-[10px] md:text-[11px] text-indigo-200 leading-relaxed font-medium">
+                                <span className="text-indigo-400 font-bold uppercase text-[9px] md:text-[10px] tracking-wider block mb-0.5">AI Insight</span>
+                                Spike is 80% correlated with crop residue burning smoke drift.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center justify-center h-56 md:h-64 relative">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                                <Pie
+                                    data={currentSources}
+                                    cx="50%"
+                                    cy="50%"
+                                    innerRadius={70} // Thinner stroke
+                                    outerRadius={85}
+                                    paddingAngle={2}
+                                    dataKey="value"
+                                    onClick={handlePieClick}
+                                    cursor="pointer"
+                                    stroke="none"
+                                >
+                                    {currentSources.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={COLORS[entry.name]} opacity={0.9} />
+                                    ))}
+                                </Pie>
+                                <Tooltip contentStyle={{ backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '6px', fontSize: '12px' }} />
+                            </PieChart>
+                        </ResponsiveContainer>
+                        {/* Center Label (Scientific Look) */}
+                        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                            <span className="text-2xl md:text-4xl font-mono font-bold text-white tracking-tighter">{getCurrentAQI(selectedArea)}</span>
+                            <span className="text-[8px] md:text-[10px] text-muted uppercase tracking-widest mt-1">Live AQI</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* 2. Daily Source Variation (Bar) - Col Span 8 */}
+                <div className="col-span-12 lg:col-span-8 bg-surface/40 border border-border rounded-xl p-4 md:p-6 backdrop-blur-sm hover:border-border/80 transition-colors">
+                    <div className="flex justify-between items-center mb-4 md:mb-6">
+                        <h3 className="text-[10px] md:text-xs font-bold text-muted uppercase tracking-wider flex items-center gap-2">
+                            <BarChart2 className="w-3 md:w-3.5 h-3 md:h-3.5 text-primary" />
+                            Source Variation (24h)
+                        </h3>
+                        <span className="text-[8px] md:text-[10px] font-mono text-muted uppercase">Updates hourly</span>
+                    </div>
+                    <div className="h-56 md:h-64">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={hourlyData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                                <XAxis
+                                    dataKey="time"
+                                    stroke="#52525b"
+                                    fontSize={9}
+                                    tickLine={false}
+                                    axisLine={false}
+                                    tick={{ fontFamily: 'JetBrains Mono' }}
+                                />
+                                <YAxis
+                                    stroke="#52525b"
+                                    fontSize={9}
+                                    tickLine={false}
+                                    axisLine={false}
+                                    tick={{ fontFamily: 'JetBrains Mono' }}
+                                />
+                                <Tooltip
+                                    cursor={{ fill: 'rgba(255,255,255,0.03)' }}
+                                    contentStyle={{ backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '6px' }}
+                                    itemStyle={{ fontSize: '11px', fontFamily: 'JetBrains Mono' }}
+                                />
+                                <Legend
+                                    iconType="circle"
+                                    iconSize={5}
+                                    wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }}
+                                    onClick={(e) => setActiveSource(activeSource === e.dataKey ? null : e.dataKey)}
+                                />
+                                {Object.keys(COLORS).map((key) => (
+                                    <Bar
+                                        key={key}
+                                        dataKey={key}
+                                        stackId="a"
+                                        fill={COLORS[key]}
+                                        opacity={activeSource && activeSource !== key ? 0.2 : 1}
+                                        barSize={24}
+                                    />
+                                ))}
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+
+                {/* 3. AI Insights (The Logic) - Col Span 8 */}
+                <div className="col-span-12 lg:col-span-8 bg-surface/40 border border-border rounded-xl p-4 md:p-6 hover:border-border/80 transition-colors relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-6 opacity-[0.02] pointer-events-none">
+                        <Brain className="w-48 h-48" />
+                    </div>
+
+                    <div className="flex items-center gap-2 mb-4 md:mb-6">
+                        <div className="w-1 md:w-1.5 h-1 md:h-1.5 bg-primary rounded-full"></div>
+                        <h3 className="text-[10px] md:text-xs font-bold text-muted uppercase tracking-wider">Analysis Engine Output</h3>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+                        <div>
+                            <div className="text-[10px] md:text-sm text-muted mb-1.5 md:mb-2 text-zinc-500 uppercase font-bold tracking-widest">Primary Driver</div>
+                            <div className="text-lg md:text-xl font-bold text-white mb-3 md:mb-4 border-l-2 border-primary pl-4">
+                                {explanation.primary.title}
+                            </div>
+                            <ul className="space-y-1.5 md:space-y-2">
+                                {explanation.primary.factors.map((factor, i) => (
+                                    <li key={i} className="flex items-start gap-2.5 text-xs md:text-sm text-zinc-400">
+                                        <div className="w-1 h-1 bg-primary rounded-full mt-1.5 md:mt-2 shrink-0"></div>
+                                        {factor}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+
+                        <div>
+                            <div className="text-[10px] md:text-sm text-muted mb-1.5 md:mb-2 text-zinc-500 uppercase font-bold tracking-widest">Secondary Factors</div>
+                            <div className="text-base md:text-lg font-medium text-zinc-300 mb-3 md:mb-4 border-l-2 border-secondary pl-4">
+                                {explanation.secondary.title}
+                            </div>
+                            <div className="mt-4 md:mt-6 pt-4 md:pt-6 border-t border-border">
+                                <div className="flex flex-wrap gap-2">
+                                    {explanation.tertiary.map((item, i) => (
+                                        <div key={i} className="px-2 py-1 bg-white/5 border border-border rounded text-[9px] md:text-[10px] font-mono text-zinc-500">
+                                            {item.name}: <span className="text-zinc-300">{item.value}%</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* 4. Actionable Intelligence - Col Span 4 */}
+                <div className="col-span-12 lg:col-span-4 bg-surface/40 border border-border rounded-xl p-4 md:p-6 hover:border-border/80 transition-colors flex flex-col">
+                    <div className="flex justify-between items-center mb-6">
+                        <h3 className="text-[10px] md:text-xs font-bold text-muted uppercase tracking-wider flex items-center gap-2">
+                            <Target className="w-3 md:w-3.5 h-3 md:h-3.5 text-primary" />
+                            Response Protocol
+                        </h3>
+                        <div className="flex bg-background p-0.5 rounded-lg border border-border">
+                            <button
+                                onClick={() => setActionView('authorities')}
+                                className={`px-2 py-1 rounded-md text-[9px] md:text-[10px] font-bold transition-all ${actionView === 'authorities'
+                                    ? 'bg-surface text-white border border-border shadow-sm'
+                                    : 'text-muted hover:text-gray-300'
+                                    }`}
+                            >
+                                Admin
+                            </button>
+                            <button
+                                onClick={() => setActionView('citizens')}
+                                className={`px-2 py-1 rounded-md text-[9px] md:text-[10px] font-bold transition-all ${actionView === 'citizens'
+                                    ? 'bg-surface text-white border border-border shadow-sm'
+                                    : 'text-muted hover:text-gray-300'
+                                    }`}
+                            >
+                                Public
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="flex-1 space-y-3 md:space-y-4">
+                        {actionView === 'authorities' ? (
+                            <div className="space-y-2 md:space-y-3 animate-in fade-in duration-300">
+                                {recommendations.authorities.map((rec, i) => (
+                                    <div key={i} className="flex gap-3 items-start p-3 bg-white/5 rounded-lg border border-transparent hover:border-border transition-colors">
+                                        <span className="font-mono text-[10px] md:text-xs text-muted mt-0.5">0{i + 1}</span>
+                                        <p className="text-xs md:text-sm text-zinc-300 leading-snug">{rec}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="space-y-2 md:space-y-3 animate-in fade-in duration-300">
+                                {recommendations.citizens.map((rec, i) => (
+                                    <div key={i} className="flex gap-3 items-center p-3 bg-white/5 rounded-lg border border-transparent hover:border-border transition-colors">
+                                        <CheckCircleIcon className="w-3.5 h-3.5 md:w-4 md:h-4 text-success/70" />
+                                        <p className="text-xs md:text-sm text-zinc-300 leading-snug">{rec}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+
+
+                {/* Drill Down Modal */}
+                <DrillDownModal
+                    isOpen={modalData.isOpen}
+                    onClose={() => setModalData({ ...modalData, isOpen: false })}
+                    sourceType={modalData.type}
+                    areaName={AREAS.find(a => a.id === selectedArea)?.name}
+                    color={modalData.color}
+                />
+            </div>
+        </div>
+    );
+};
+
+export default SourceAnalysis;

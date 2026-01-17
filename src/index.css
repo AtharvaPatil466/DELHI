@@ -1,0 +1,128 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --color-background: #09090b;
+  --color-surface: #18181b;
+  --color-border: #27272a;
+
+  --color-primary: #6366f1;
+  --color-secondary: #8b5cf6;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+
+  --color-text: #fafafa;
+  --color-muted: #a1a1aa;
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/5 backdrop-blur-lg border border-white/10 shadow-xl;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #09090b;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
+}
+
+/* Leaflet Custom Styles */
+.leaflet-container {
+  background: #09090b !important;
+  font-family: 'Inter', sans-serif;
+}
+
+.custom-marker {
+  position: relative;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+.marker-pin {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.marker-pin.animate {
+  animation: pulse-ring 2s infinite;
+}
+
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 rgba(var(--marker-color), 0.7);
+  }
+
+  70% {
+    box-shadow: 0 0 0 10px rgba(var(--marker-color), 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(var(--marker-color), 0);
+  }
+}
+
+.leaflet-popup-content-wrapper {
+  background: rgba(9, 9, 11, 0.95) !important;
+  color: white !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px !important;
+  backdrop-filter: blur(12px);
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+.leaflet-popup-tip {
+  background: rgba(9, 9, 11, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+}
+
+.leaflet-control-zoom a {
+  background-color: #18181b !important;
+  color: white !important;
+  border: 1px solid #27272a !important;
+}
+
+.leaflet-control-zoom a:hover {
+  background-color: #27272a !important;
+}
+
+.leaflet-top .leaflet-control {
+  margin-top: 20px;
+}
+
+.leaflet-right .leaflet-control {
+  margin-right: 20px;
+}
