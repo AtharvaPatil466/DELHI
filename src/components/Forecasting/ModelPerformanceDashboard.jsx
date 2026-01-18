@@ -10,7 +10,7 @@ const ModelPerformanceDashboard = ({ data }) => {
         <div className="space-y-8">
             {/* Header Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <TechnicalCard icon={<Cpu />} label="Algorithm" value="Ensemble v2.1" sub="Weighted Time-Series" color="blue" />
+                <TechnicalCard icon={<Cpu />} label="Algorithm" value="XGBoost Regressor" sub="Gradient Boosted Trees" color="blue" />
                 <TechnicalCard icon={<Database />} label="Training Set" value="8,760 hrs" sub="3 Years (2019-2024)" color="purple" />
                 <TechnicalCard icon={<Activity />} label="Validation" value="5-Fold CV" sub="Robust Cross-Val" color="green" />
                 <TechnicalCard icon={<Target />} label="R² Score" value="0.87" sub="High Accuracy" color="orange" />

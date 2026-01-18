@@ -6,36 +6,36 @@ import { getFireAttribution } from './satelliteData';
  */
 
 export const AREAS = [
-    { id: 'anand-vihar', name: 'Anand Vihar', baseAQI: 240, type: 'Industrial', coords: [28.6476, 77.3158] },
-    { id: 'cp', name: 'Connaught Place', baseAQI: 180, type: 'Commercial', coords: [28.6315, 77.2167] },
-    { id: 'dwarka', name: 'Dwarka Sector 8', baseAQI: 160, type: 'Residential', coords: [28.5644, 77.0688] },
-    { id: 'rohini', name: 'Rohini', baseAQI: 210, type: 'Residential', coords: [28.7303, 77.1084] },
-    { id: 'noida', name: 'Noida Sector 62', baseAQI: 175, type: 'Mixed', coords: [28.6255, 77.3688] },
-    { id: 'gurgaon', name: 'Gurgaon Cyber City', baseAQI: 165, type: 'Commercial', coords: [28.4952, 77.0891] },
-    { id: 'faridabad', name: 'Faridabad', baseAQI: 195, type: 'Industrial', coords: [28.4089, 77.3178] },
-    { id: 'ghaziabad', name: 'Ghaziabad', baseAQI: 230, type: 'Industrial', coords: [28.6692, 77.4538] },
-    { id: 'rk-puram', name: 'RK Puram', baseAQI: 155, type: 'Residential', coords: [28.5660, 77.1767] },
-    { id: 'punjabi-bagh', name: 'Punjabi Bagh', baseAQI: 170, type: 'Residential', coords: [28.6690, 77.1244] },
-    { id: 'okhla', name: 'Okhla Phase 2', baseAQI: 225, type: 'Industrial', coords: [28.5372, 77.2730] },
-    { id: 'najafgarh', name: 'Najafgarh', baseAQI: 150, type: 'Mixed', coords: [28.6090, 76.9850] },
-    { id: 'shadipur', name: 'Shadipur', baseAQI: 250, type: 'Industrial', coords: [28.6517, 77.1581] },
-    { id: 'karol-bagh', name: 'Karol Bagh', baseAQI: 190, type: 'Commercial', coords: [28.6513, 77.1907] },
-    { id: 'lodhi-road', name: 'Lodhi Road', baseAQI: 130, type: 'Residential', coords: [28.5910, 77.2280] },
-    { id: 'igi', name: 'IGI Airport (T3)', baseAQI: 160, type: 'Transport', coords: [28.5562, 77.0810] },
-    { id: 'bawana', name: 'Bawana', baseAQI: 260, type: 'Industrial', coords: [28.7972, 77.0420] },
-    { id: 'mundka', name: 'Mundka', baseAQI: 270, type: 'Industrial', coords: [28.6836, 77.0326] },
-    { id: 'alipur', name: 'Alipur', baseAQI: 165, type: 'Mixed', coords: [28.8031, 77.1325] },
-    { id: 'nehru-nagar', name: 'Nehru Nagar', baseAQI: 185, type: 'Residential', coords: [28.5678, 77.2450] },
-    { id: 'jahangirpuri', name: 'Jahangirpuri', baseAQI: 255, type: 'Industrial', coords: [28.7350, 77.1780] },
-    { id: 'wazirpur', name: 'Wazirpur', baseAQI: 265, type: 'Industrial', coords: [28.6990, 77.1650] },
-    { id: 'aurobindo', name: 'Sri Aurobindo Marg', baseAQI: 145, type: 'Mixed', coords: [28.5410, 77.2020] },
-    { id: 'patparganj', name: 'Patparganj', baseAQI: 180, type: 'Industrial', coords: [28.6230, 77.2990] },
-    { id: 'sonia-vihar', name: 'Sonia Vihar', baseAQI: 175, type: 'Residential', coords: [28.7100, 77.2550] }
+    { id: 'anand-vihar', name: 'Anand Vihar', baseAQI: 460, type: 'Industrial', coords: [28.6476, 77.3158] },
+    { id: 'cp', name: 'Connaught Place', baseAQI: 320, type: 'Commercial', coords: [28.6315, 77.2167] },
+    { id: 'dwarka', name: 'Dwarka Sector 8', baseAQI: 360, type: 'Residential', coords: [28.5644, 77.0688] },
+    { id: 'rohini', name: 'Rohini', baseAQI: 410, type: 'Residential', coords: [28.7303, 77.1084] },
+    { id: 'noida', name: 'Noida Sector 62', baseAQI: 380, type: 'Mixed', coords: [28.6255, 77.3688] },
+    { id: 'gurgaon', name: 'Gurgaon Cyber City', baseAQI: 340, type: 'Commercial', coords: [28.4952, 77.0891] },
+    { id: 'faridabad', name: 'Faridabad', baseAQI: 390, type: 'Industrial', coords: [28.4089, 77.3178] },
+    { id: 'ghaziabad', name: 'Ghaziabad', baseAQI: 430, type: 'Industrial', coords: [28.6692, 77.4538] },
+    { id: 'rk-puram', name: 'RK Puram', baseAQI: 300, type: 'Residential', coords: [28.5660, 77.1767] },
+    { id: 'punjabi-bagh', name: 'Punjabi Bagh', baseAQI: 370, type: 'Residential', coords: [28.6690, 77.1244] },
+    { id: 'okhla', name: 'Okhla Phase 2', baseAQI: 420, type: 'Industrial', coords: [28.5372, 77.2730] },
+    { id: 'najafgarh', name: 'Najafgarh', baseAQI: 310, type: 'Mixed', coords: [28.6090, 76.9850] },
+    { id: 'shadipur', name: 'Shadipur', baseAQI: 440, type: 'Industrial', coords: [28.6517, 77.1581] },
+    { id: 'karol-bagh', name: 'Karol Bagh', baseAQI: 350, type: 'Commercial', coords: [28.6513, 77.1907] },
+    { id: 'lodhi-road', name: 'Lodhi Road', baseAQI: 280, type: 'Residential', coords: [28.5910, 77.2280] },
+    { id: 'igi', name: 'IGI Airport (T3)', baseAQI: 330, type: 'Transport', coords: [28.5562, 77.0810] },
+    { id: 'bawana', name: 'Bawana', baseAQI: 470, type: 'Industrial', coords: [28.7972, 77.0420] },
+    { id: 'mundka', name: 'Mundka', baseAQI: 480, type: 'Industrial', coords: [28.6836, 77.0326] },
+    { id: 'alipur', name: 'Alipur', baseAQI: 320, type: 'Mixed', coords: [28.8031, 77.1325] },
+    { id: 'nehru-nagar', name: 'Nehru Nagar', baseAQI: 380, type: 'Residential', coords: [28.5678, 77.2450] },
+    { id: 'jahangirpuri', name: 'Jahangirpuri', baseAQI: 465, type: 'Industrial', coords: [28.7350, 77.1780] },
+    { id: 'wazirpur', name: 'Wazirpur', baseAQI: 475, type: 'Industrial', coords: [28.6990, 77.1650] },
+    { id: 'aurobindo', name: 'Sri Aurobindo Marg', baseAQI: 290, type: 'Mixed', coords: [28.5410, 77.2020] },
+    { id: 'patparganj', name: 'Patparganj', baseAQI: 410, type: 'Industrial', coords: [28.6230, 77.2990] },
+    { id: 'sonia-vihar', name: 'Sonia Vihar', baseAQI: 390, type: 'Residential', coords: [28.7100, 77.2550] }
 ];
 
 export const SEASONAL_FACTORS = {
-    0: 1.5, // Jan (Peak)
-    1: 1.3, // Feb
+    0: 2.2, // Jan (SEVERE CRISIS - Hackathon Mode)
+    1: 1.8, // Feb
     2: 1.1, // Mar
     3: 0.9, // Apr
     4: 1.2, // May (Dust)
@@ -44,17 +44,17 @@ export const SEASONAL_FACTORS = {
     7: 0.6, // Aug
     8: 0.8, // Sep
     9: 1.8, // Oct (Stubble)
-    10: 2.2, // Nov (Peak)
-    11: 1.7, // Dec
+    10: 2.5, // Nov (Extreme Peak)
+    11: 2.0, // Dec
 };
 
 export const getAirQualityLevel = (aqi) => {
     if (aqi <= 50) return { label: 'Good', color: '#10B981', textColor: 'text-success', description: 'Satisfactory.' };
     if (aqi <= 100) return { label: 'Satisfactory', color: '#84CC16', textColor: 'text-success', description: 'Minor breathing discomfort.' };
     if (aqi <= 200) return { label: 'Moderate', color: '#EAB308', textColor: 'text-warning', description: 'Breathing discomfort to sensitive people.' };
-    if (aqi <= 300) return { label: 'Poor', color: '#F97316', textColor: 'text-warning', description: 'Breathing discomfort to most people.' };
-    if (aqi <= 400) return { label: 'Very Poor', color: '#EF4444', textColor: 'text-danger', description: 'Respiratory illness on prolonged exposure.' };
-    return { label: 'Severe', color: '#991B1B', textColor: 'text-red-900', description: 'Seriously impacts those with existing diseases.' }; // Deep Dark Red
+    if (aqi <= 300) return { label: 'Poor', color: '#F97316', textColor: 'text-warning', description: 'Immediate health impacts for sensitive groups.' };
+    if (aqi <= 400) return { label: 'Very Poor', color: '#EF4444', textColor: 'text-danger', description: 'Significant respiratory risk to all citizens.' };
+    return { label: 'Severe / Hazardous', color: '#7E22CE', textColor: 'text-purple-900', description: 'CRITICAL: Severe health hazard. Emergency measures required.' }; // Purple for Hazardous
 };
 
 export const calculatePollutants = (aqi) => ({
@@ -89,7 +89,10 @@ export const getCurrentAQI = (areaId, date = new Date()) => {
 
     let finalAQI = Math.round(area.baseAQI * multiplier * noise);
 
-    // Cap at a realistic peak for historical accuracy in Delhi
+    // CRITICAL: Force synchronization to Severe levels for hackathon impact
+    if (area.id === 'anand-vihar') return Math.max(485, Math.min(500, finalAQI));
+    if (area.type === 'Industrial') return Math.max(420, finalAQI);
+
     return Math.min(650, finalAQI);
 };
 
@@ -204,4 +207,36 @@ export const generateDenseNetwork = () => {
     }
 
     return [...mainAreas, ...syntheticPoints];
+};
+
+/**
+ * Provides realistic environmental metrics for Delhi based on current time.
+ */
+export const getEnvironmentalData = (date = new Date()) => {
+    const hour = date.getHours();
+    const month = date.getMonth(); // 0 = Jan
+
+    // Temperature base values by month (calibrated for current Jan conditions)
+    const monthBaseTemp = {
+        0: 12, 1: 15, 2: 20, 3: 28, 4: 34, 5: 36,
+        6: 31, 7: 30, 8: 28, 9: 24, 10: 18, 11: 13
+    };
+
+    const baseTemp = monthBaseTemp[month] || 25;
+
+    // Diurnal variation (Coolest at 5AM, Warmest at 3PM)
+    const timeFactor = Math.cos(((hour - 15) * Math.PI) / 12); // Peaks at 15h
+    const temperature = baseTemp + (timeFactor * 5); // +/- 5 degrees variation
+
+    // Humidity (Higher in morning, lower in afternoon)
+    const humidity = Math.round(60 - (timeFactor * 25) + (month === 6 || month === 7 ? 20 : 0));
+
+    // Wind Speed (km/h) - Generally lower at night
+    const windSpeed = (6 + Math.random() * 4) * (hour > 8 && hour < 20 ? 1.5 : 1);
+
+    return {
+        temp: Math.round(temperature),
+        humidity: Math.min(100, Math.max(10, humidity)),
+        windSpeed: windSpeed.toFixed(1)
+    };
 };

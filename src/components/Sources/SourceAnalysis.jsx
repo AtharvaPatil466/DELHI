@@ -13,8 +13,15 @@ import FireIntelligenceCenter from './FireIntelligenceCenter';
 import DrillDownModal from './DrillDownModal';
 import { Suspense } from 'react';
 
-const SourceAnalysis = () => {
-    const [selectedArea, setSelectedArea] = useState('anand-vihar');
+const SourceAnalysis = ({ activeAreaId }) => {
+    const [selectedArea, setSelectedArea] = useState(activeAreaId || 'anand-vihar');
+
+    React.useEffect(() => {
+        if (activeAreaId) {
+            setSelectedArea(activeAreaId);
+        }
+    }, [activeAreaId]);
+
     const [currentHour, setCurrentHour] = useState(new Date().getHours());
     const [modalData, setModalData] = useState({ isOpen: false, type: null, color: null });
     const [activeSource, setActiveSource] = useState(null); // For legend filtering

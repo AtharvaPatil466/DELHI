@@ -4,7 +4,7 @@ import AQICard from './AQICard';
 import { AlertCircle, RefreshCw, Filter, Download, TrendingUp, Shield, Activity } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 
-const DashboardOverview = () => {
+const DashboardOverview = ({ onAreaClick }) => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [lastRefresh, setLastRefresh] = useState(new Date());
@@ -24,19 +24,38 @@ const DashboardOverview = () => {
         return () => clearInterval(interval);
     }, []);
 
-    // Mock Data for Hero Chart (Regional Trend)
-    const trendData = [
-        { time: '06:00', value: 240 }, { time: '09:00', value: 280 },
-        { time: '12:00', value: 342 }, { time: '15:00', value: 320 },
-        { time: '18:00', value: 360 }, { time: '21:00', value: 310 },
-        { time: '00:00', value: 290 },
-    ];
-
-    // Real-time Jitter Effect
+    const [timeRange, setTimeRange] = useState('24H');
     const [liveAQI, setLiveAQI] = useState(312);
+
+    const getTrendData = () => {
+        switch (timeRange) {
+            case '1H':
+                return [
+                    { time: '03:10', value: 305 }, { time: '03:20', value: 308 },
+                    { time: '03:30', value: 312 }, { time: '03:40', value: 310 },
+                    { time: '03:50', value: 315 }, { time: '04:00', value: 313 }
+                ];
+            case '7D':
+                return [
+                    { time: 'Mon', value: 280 }, { time: 'Tue', value: 310 },
+                    { time: 'Wed', value: 345 }, { time: 'Thu', value: 390 },
+                    { time: 'Fri', value: 360 }, { time: 'Sat', value: 320 },
+                    { time: 'Sun', value: 312 }
+                ];
+            default: // 24H
+                return [
+                    { time: '06:00', value: 240 }, { time: '09:00', value: 280 },
+                    { time: '12:00', value: 342 }, { time: '15:00', value: 320 },
+                    { time: '18:00', value: 360 }, { time: '21:00', value: 310 },
+                    { time: '00:00', value: 290 },
+                ];
+        }
+    };
+
+    const trendData = getTrendData();
+
     useEffect(() => {
         const interval = setInterval(() => {
-            // Jitter between 310 and 315
             setLiveAQI(prev => 310 + Math.floor(Math.random() * 6));
         }, 5000);
         return () => clearInterval(interval);
@@ -44,6 +63,40 @@ const DashboardOverview = () => {
 
     // Cigarettes Calculation (Roughly AQI / 22)
     const cigarettes = Math.round(liveAQI / 22);
+
+    const handleExport = () => {
+        if (!data || data.length === 0) return;
+
+        // CSV Header
+        const headers = ["Station Name", "AQI", "Level", "PM2.5", "PM10", "SO2", "NO2", "Timestamp"];
+
+        // CSV Rows
+        const rows = data.map(item => [
+            item.name,
+            item.aqi,
+            item.label,
+            item.pollutants.pm25,
+            item.pollutants.pm10,
+            item.pollutants.so2,
+            item.pollutants.no2,
+            new Date().toLocaleString()
+        ]);
+
+        const csvContent = [
+            headers.join(","),
+            ...rows.map(row => row.join(","))
+        ].join("\n");
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `Delhi_AQI_Report_${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
 
     return (
         <div className="p-4 md:p-8 min-h-screen space-y-6 md:space-y-8 fade-in max-w-[1600px] mx-auto">
@@ -57,7 +110,10 @@ const DashboardOverview = () => {
                     <button onClick={fetchData} className="flex-1 sm:flex-none p-2.5 md:p-3 rounded-xl md:rounded-2xl bg-[#18181b] hover:bg-white/10 text-gray-400 hover:text-white transition-all flex justify-center items-center">
                         <RefreshCw className={`w-4 h-4 md:w-5 md:h-5 ${loading ? 'animate-spin' : ''}`} />
                     </button>
-                    <button className="flex-[3] sm:flex-none flex items-center justify-center gap-2 px-4 md:px-5 py-2.5 md:py-3 rounded-xl md:rounded-2xl bg-[#18181b] hover:bg-white/10 text-white text-xs md:text-sm font-medium transition-all">
+                    <button
+                        onClick={handleExport}
+                        className="flex-[3] sm:flex-none flex items-center justify-center gap-2 px-4 md:px-5 py-2.5 md:py-3 rounded-xl md:rounded-2xl bg-[#18181b] hover:bg-white/10 text-white text-xs md:text-sm font-medium transition-all"
+                    >
                         <Download className="w-3.5 h-3.5 md:w-4 md:h-4" />
                         Export Report
                     </button>
@@ -94,7 +150,11 @@ const DashboardOverview = () => {
                         </div>
                         <div className="flex gap-1.5 md:gap-2 w-full sm:w-auto overflow-x-auto no-scrollbar pb-2 sm:pb-0">
                             {['1H', '24H', '7D'].map(range => (
-                                <button key={range} className={`px-3 md:px-4 py-1.5 md:py-2 rounded-lg md:rounded-xl text-[10px] md:text-xs font-bold transition-all whitespace-nowrap ${range === '24H' ? 'bg-white text-black' : 'bg-white/5 text-gray-400 hover:text-white'}`}>
+                                <button
+                                    key={range}
+                                    onClick={() => setTimeRange(range)}
+                                    className={`px-3 md:px-4 py-1.5 md:py-2 rounded-lg md:rounded-xl text-[10px] md:text-xs font-bold transition-all whitespace-nowrap ${timeRange === range ? 'bg-white text-black' : 'bg-white/5 text-gray-400 hover:text-white'}`}
+                                >
                                     {range}
                                 </button>
                             ))}
@@ -187,6 +247,7 @@ const DashboardOverview = () => {
                             key={areaData.id}
                             area={areaData.name}
                             {...areaData}
+                            onClick={() => onAreaClick(areaData.id)}
                         />
                     ))}
                 </div>

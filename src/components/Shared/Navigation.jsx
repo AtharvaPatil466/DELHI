@@ -9,8 +9,10 @@ import {
     Settings,
     Activity,
     MessageSquare,
-    Users
+    Users,
+    LogOut
 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -49,6 +51,7 @@ const NavItem = ({ icon: Icon, label, active, onClick }) => (
 );
 
 const Sidebar = ({ activeTab, setActiveTab }) => {
+    const { user, logout } = useAuth();
     const menuItems = [
         { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
         { id: 'forecast', icon: TrendingUp, label: 'AQI Forecast' },
@@ -58,7 +61,14 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
         { id: 'health', icon: HeartPulse, label: 'Health Advisory' },
         { id: 'community', icon: Users, label: 'Community' },
         { id: 'chat', icon: MessageSquare, label: 'System Logs' },
+        // Conditional admin item
+        ...(user?.role === 'admin' ? [{ id: 'settings', icon: Settings, label: 'System Settings' }] : []),
     ];
+
+    const getInitials = (name) => {
+        if (!name) return '??';
+        return name.substring(0, 2).toUpperCase();
+    };
 
     return (
         <aside className="fixed bottom-0 left-0 w-full h-20 md:h-screen md:w-20 z-50 flex flex-row md:flex-col items-center py-0 md:py-6 bg-[#18181b] border-t md:border-t-0 md:border-r border-white/5 shadow-2xl px-4 md:px-0">
@@ -85,8 +95,15 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
 
             {/* Settings & Profile - Adjusted for mobile */}
             <div className="hidden md:flex flex-col gap-4 items-center mb-4 w-full px-3">
-                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-xs font-bold text-white shadow-lg cursor-pointer hover:scale-105 transition-transform">
-                    JD
+                <button
+                    onClick={logout}
+                    title="Sign Out"
+                    className="p-3 text-gray-500 hover:text-red-400 hover:bg-red-400/10 rounded-2xl transition-all"
+                >
+                    <LogOut className="w-6 h-6" />
+                </button>
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-[10px] font-black text-white shadow-lg cursor-pointer hover:scale-105 transition-transform border border-white/10 uppercase">
+                    {getInitials(user?.username)}
                 </div>
             </div>
         </aside>

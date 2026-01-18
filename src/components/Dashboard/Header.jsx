@@ -1,9 +1,20 @@
 import React from 'react';
-import { Search, Calendar, CloudRain, Wind, Thermometer } from 'lucide-react';
+import { Search, Calendar, Droplets, Wind, Thermometer } from 'lucide-react';
+import { getEnvironmentalData } from '../../utils/dataGenerator';
+import { getRealTimeWeather } from '../../services/weatherService';
 
 const Header = ({ title }) => {
-    const currentStatus = "Poor"; // Dynamic
-    const statusColor = "bg-danger"; // Dynamic
+    const [weather, setWeather] = React.useState(getEnvironmentalData());
+
+    React.useEffect(() => {
+        const fetchWeather = async () => {
+            const data = await getRealTimeWeather();
+            if (data) setWeather(data);
+        };
+        fetchWeather();
+        const interval = setInterval(fetchWeather, 600000); // 10 min refresh
+        return () => clearInterval(interval);
+    }, []);
 
     return (
         <header className="sticky top-0 md:top-6 z-40 mx-0 md:mx-6 mb-4 md:mb-6 rounded-none md:rounded-[32px] px-4 md:px-6 h-16 md:h-20 bg-[#18181b]/90 backdrop-blur-md border-b md:border border-white/5 shadow-2xl flex items-center justify-between">
@@ -20,15 +31,15 @@ const Header = ({ title }) => {
                 <div className="hidden lg:flex items-center gap-6 bg-white/5 px-6 py-2 rounded-2xl border border-white/5">
                     <div className="flex items-center gap-2 text-zinc-400">
                         <Thermometer className="w-4 h-4" />
-                        <span className="text-xs font-mono">14°C</span>
+                        <span className="text-xs font-mono">{weather.temp}°C</span>
                     </div>
                     <div className="flex items-center gap-2 text-zinc-400">
                         <Wind className="w-4 h-4" />
-                        <span className="text-xs font-mono">8.4 km/h</span>
+                        <span className="text-xs font-mono">{weather.windSpeed} km/h</span>
                     </div>
                     <div className="flex items-center gap-2 text-zinc-400">
-                        <CloudRain className="w-4 h-4" />
-                        <span className="text-xs font-mono">12%</span>
+                        <Droplets className="w-4 h-4 text-blue-400/50" />
+                        <span className="text-xs font-mono">{weather.humidity}%</span>
                     </div>
                 </div>
 

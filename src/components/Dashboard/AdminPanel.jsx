@@ -6,13 +6,37 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
+import { useAuth } from '../../context/AuthContext';
+import { useSystem } from '../../context/SystemContext';
+
 const AdminPanel = () => {
+    const { user } = useAuth();
+    const { features, toggleFeature, triggerAlert } = useSystem();
+
     const [metrics, setMetrics] = useState({
         cpu: 45,
         memory: 62,
         latency: 12,
         requests: 2450
     });
+
+    if (user?.role !== 'admin') {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[calc(100vh-80px)] text-center p-8">
+                <div className="w-20 h-20 bg-red-500/10 border border-red-500/20 rounded-3xl flex items-center justify-center mb-6">
+                    <Lock className="w-10 h-10 text-red-500" />
+                </div>
+                <h2 className="text-3xl font-light text-white mb-4">Access Denied</h2>
+                <p className="text-gray-500 max-w-sm leading-relaxed mb-8">
+                    Your current clearance level does not allow access to system-level configuration nodes. Please contact the network administrator.
+                </p>
+                <div className="w-full max-w-xs h-px bg-white/5 mb-8"></div>
+                <div className="text-[10px] text-gray-700 font-mono uppercase tracking-[0.3em]">
+                    Security Protocol: RBAC-V4.2
+                </div>
+            </div>
+        );
+    }
 
     // Simulated Live Metrics Updates
     useEffect(() => {
@@ -26,6 +50,13 @@ const AdminPanel = () => {
         }, 2000);
         return () => clearInterval(interval);
     }, []);
+
+    const FEATURE_CONFIG = [
+        { id: 'nasaFeed', title: 'NASA Satellite Feed', desc: 'Real-time thermal anomaly detection' },
+        { id: 'visionAI', title: 'Vision AI (Traffic)', desc: 'Vehicular emission estimation engine' },
+        { id: 'publicChat', title: 'Global Public Chat', desc: 'Allow citizen science interaction' },
+        { id: 'predictionV4', title: 'Prediction Layer V4', desc: 'XGBoost multi-variable forecasting' },
+    ];
 
     return (
         <div className="p-8 bg-background min-h-[calc(100vh-80px)] text-white space-y-8">
@@ -73,19 +104,17 @@ const AdminPanel = () => {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {[
-                                { title: 'NASA Satellite Feed', desc: 'Real-time thermal anomaly detection', active: true },
-                                { title: 'Vision AI (Traffic)', desc: 'Vehicular emission estimation engine', active: true },
-                                { title: 'Global Public Chat', desc: 'Allow citizen science interaction', active: true },
-                                { title: 'Prediction Layer V4', desc: 'XGBoost multi-variable forecasting', active: false },
-                            ].map((feature, i) => (
+                            {FEATURE_CONFIG.map((feature, i) => (
                                 <div key={i} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 hover:border-white/20 transition-all">
                                     <div>
                                         <h4 className="font-bold text-sm text-gray-200">{feature.title}</h4>
                                         <p className="text-[10px] text-gray-500">{feature.desc}</p>
                                     </div>
-                                    <div className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors ${feature.active ? 'bg-blue-500' : 'bg-gray-700'}`}>
-                                        <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${feature.active ? 'left-6' : 'left-1'}`}></div>
+                                    <div
+                                        onClick={() => toggleFeature(feature.id)}
+                                        className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors ${features[feature.id] ? 'bg-blue-500' : 'bg-gray-700'}`}
+                                    >
+                                        <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${features[feature.id] ? 'left-6' : 'left-1'}`}></div>
                                     </div>
                                 </div>
                             ))}
@@ -118,7 +147,14 @@ const AdminPanel = () => {
                         </h4>
                         <p className="text-xs text-gray-400 mb-6">Authorize emergency notification push to 2.4M registered mobile devices in Delhi NCR.</p>
                         <div className="space-y-4">
-                            <button className="w-full py-4 bg-red-600/20 border border-red-500/40 text-red-500 font-bold rounded-2xl hover:bg-red-600/30 transition-all text-xs">
+                            <button
+                                onClick={() => triggerAlert({
+                                    type: 'GRAP-4 EMERGENCY',
+                                    message: 'Severe AQI levels detected. Implementation of Stage IV protocols mandated effectively immediately across Delhi NCR.',
+                                    timestamp: new Date().toLocaleTimeString()
+                                })}
+                                className="w-full py-4 bg-red-600/20 border border-red-500/40 text-red-500 font-bold rounded-2xl hover:bg-red-600/30 transition-all text-xs"
+                            >
                                 SEND GRAP-4 ALERT
                             </button>
                             <button className="w-full py-4 bg-white/5 border border-white/10 text-gray-400 font-bold rounded-2xl hover:bg-white/10 transition-all text-xs">

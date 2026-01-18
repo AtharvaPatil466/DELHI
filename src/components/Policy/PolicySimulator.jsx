@@ -4,7 +4,7 @@ import {
 } from 'recharts';
 import { POLICIES, simulatePolicy } from '../../utils/policySimulator';
 import { getCurrentAQI, AREAS } from '../../utils/dataGenerator';
-import { ShieldCheck, TrendingDown, Users, DollarSign, PlusCircle, CheckCircle2, ChevronRight, Zap } from 'lucide-react';
+import { ShieldCheck, TrendingDown, Users, IndianRupee, PlusCircle, CheckCircle2, ChevronRight, Zap } from 'lucide-react';
 import SchoolClosurePredictor from './SchoolClosurePredictor'; // Keeping your existing component
 
 const PolicySimulator = () => {
@@ -35,7 +35,8 @@ const PolicySimulator = () => {
             let baseline = baseAQI + diurnalFactor;
 
             // Apply the calculated reduction from the simulation engine
-            let simulated = baseline - (simulation.reduction * (compliance / 100));
+            // FIXED: simulation.reduction already accounts for compliance in the engine
+            let simulated = baseline - simulation.reduction;
 
             // Ensure we don't go below realistic minimums
             if (simulated < 50) simulated = 50;
@@ -132,8 +133,8 @@ const PolicySimulator = () => {
                                             <span className="text-[10px] font-bold text-green-400">-{policy.reduction} AQI</span>
                                         </div>
                                         <div className="flex items-center gap-1.5">
-                                            <DollarSign className="w-3 h-3 text-orange-400" />
-                                            <span className="text-[10px] font-bold text-orange-400">₹{policy.annualCost} Cr</span>
+                                            <IndianRupee className="w-3 h-3 text-orange-400" />
+                                            <span className="text-[10px] font-bold text-orange-400">{policy.annualCost} Cr</span>
                                         </div>
                                     </div>
                                 </div>
@@ -164,44 +165,54 @@ const PolicySimulator = () => {
                             </div>
                         </div>
 
-                        <ResponsiveContainer width="100%" height="85%">
-                            <AreaChart data={projectionData}>
-                                <defs>
-                                    <linearGradient id="colorBase" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#ef4444" stopOpacity={0.2} />
-                                        <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
-                                    </linearGradient>
-                                    <linearGradient id="colorPolicy" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
-                                    </linearGradient>
-                                </defs>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
-                                <XAxis dataKey="time" stroke="#666" fontSize={12} tickMargin={10} axisLine={false} tickLine={false} />
-                                <YAxis stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
-                                <Tooltip
-                                    contentStyle={{ backgroundColor: '#09090b', borderColor: '#333', borderRadius: '12px' }}
-                                    itemStyle={{ color: '#fff' }}
-                                />
-                                <ReferenceLine y={100} label="Safe Limit" stroke="#10b981" strokeDasharray="3 3" />
+                        <div className="h-[300px] w-full mt-4">
+                            {activePolicyIds.length > 0 ? (
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <AreaChart data={projectionData}>
+                                        <defs>
+                                            <linearGradient id="colorBase" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="#ef4444" stopOpacity={0.2} />
+                                                <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
+                                            </linearGradient>
+                                            <linearGradient id="colorPolicy" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                                                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                                            </linearGradient>
+                                        </defs>
+                                        <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
+                                        <XAxis dataKey="time" stroke="#666" fontSize={12} tickMargin={10} axisLine={false} tickLine={false} />
+                                        <YAxis stroke="#666" fontSize={12} axisLine={false} tickLine={false} />
+                                        <Tooltip
+                                            contentStyle={{ backgroundColor: '#09090b', borderColor: '#333', borderRadius: '12px' }}
+                                            itemStyle={{ color: '#fff' }}
+                                        />
+                                        <ReferenceLine y={100} label="Safe Level" stroke="#10b981" strokeDasharray="3 3" />
 
-                                <Area
-                                    type="monotone"
-                                    dataKey="BusinessAsUsual"
-                                    stroke="#ef4444"
-                                    strokeWidth={2}
-                                    fill="url(#colorBase)"
-                                />
-                                <Area
-                                    type="monotone"
-                                    dataKey="WithPolicy"
-                                    stroke="#3b82f6"
-                                    strokeWidth={3}
-                                    fill="url(#colorPolicy)"
-                                    animationDuration={1500}
-                                />
-                            </AreaChart>
-                        </ResponsiveContainer>
+                                        <Area
+                                            type="monotone"
+                                            dataKey="BusinessAsUsual"
+                                            stroke="#ef4444"
+                                            strokeWidth={2}
+                                            fill="url(#colorBase)"
+                                        />
+                                        <Area
+                                            type="monotone"
+                                            dataKey="WithPolicy"
+                                            stroke="#3b82f6"
+                                            strokeWidth={3}
+                                            fill="url(#colorPolicy)"
+                                            animationDuration={1500}
+                                        />
+                                    </AreaChart>
+                                </ResponsiveContainer>
+                            ) : (
+                                <div className="h-full w-full flex flex-col items-center justify-center border-2 border-dashed border-white/5 rounded-3xl bg-white/[0.02]">
+                                    <Zap className="w-10 h-10 text-blue-500/20 mb-4 animate-pulse" />
+                                    <p className="text-gray-400 font-bold uppercase tracking-[0.2em] text-[10px]">Select a policy to initiate impact simulation</p>
+                                    <p className="text-gray-600 text-[8px] uppercase mt-2 tracking-widest">Waiting for Strategic Inputs...</p>
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     {/* STATS GRID */}
@@ -214,7 +225,7 @@ const PolicySimulator = () => {
                             </div>
                             <div>
                                 <p className="text-4xl font-black text-white font-mono mt-2">
-                                    {Math.round(simulation.reduction * (compliance / 100))}
+                                    {simulation.reduction}
                                 </p>
                                 <p className="text-xs text-green-400 mt-1 font-bold">AQI Points</p>
                             </div>
@@ -229,7 +240,7 @@ const PolicySimulator = () => {
                             </div>
                             <div className="z-10">
                                 <p className="text-4xl font-black text-white font-mono mt-2">
-                                    {Math.round(simulation.totalLivesSaved * (compliance / 100))}
+                                    {simulation.totalLivesSaved}
                                 </p>
                                 <p className="text-xs text-blue-300 mt-1">Based on mortality models</p>
                             </div>
@@ -239,7 +250,7 @@ const PolicySimulator = () => {
                         <div className="bg-white/5 p-6 rounded-2xl border border-white/5 flex flex-col justify-between">
                             <div className="flex justify-between items-start">
                                 <p className="text-[10px] text-gray-400 uppercase font-bold tracking-widest">Economic ROI</p>
-                                <DollarSign className="w-5 h-5 text-green-400" />
+                                <IndianRupee className="w-5 h-5 text-green-400" />
                             </div>
                             <div>
                                 <p className={`text-4xl font-black font-mono mt-2 ${simulation.roi >= 0 ? 'text-green-400' : 'text-red-400'}`}>

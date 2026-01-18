@@ -8,11 +8,11 @@ export const POLICIES = [
         id: 'odd-even',
         name: 'Odd-Even Vehicle Scheme',
         description: 'Restrict private vehicle usage based on license plate numbers.',
-        reduction: 75, // AQI points
-        annualCost: 50, // Crore INR
-        livesSaved: 400,
-        economicBenefit: 400, // Crore INR
-        publicTransportLoad: 35, // % increase
+        reduction: 75,
+        annualCost: 120, // Expanded enforcement + DTC fleet
+        livesSaved: 1200,
+        economicBenefit: 450,
+        publicTransportLoad: 45,
         sourceImpact: 'Vehicular Emissions',
     },
     {
@@ -20,9 +20,9 @@ export const POLICIES = [
         name: 'Complete Firecracker Ban',
         description: 'Total ban on firecracker manufacturing, sale, and use.',
         reduction: 60,
-        annualCost: 10,
-        livesSaved: 48,
-        economicBenefit: -100, // Industry loss
+        annualCost: 25,
+        livesSaved: 150,
+        economicBenefit: -80, // MSME loss
         publicTransportLoad: 0,
         sourceImpact: 'Others',
     },
@@ -32,8 +32,8 @@ export const POLICIES = [
         description: 'Suspension of all major construction projects during peak pollution.',
         reduction: 50,
         annualCost: 0,
-        livesSaved: 300,
-        economicBenefit: -200, // Industry loss
+        livesSaved: 850,
+        economicBenefit: -400, // Heavy Daily Wage Impact
         publicTransportLoad: 0,
         sourceImpact: 'Construction Dust',
     },
@@ -42,9 +42,9 @@ export const POLICIES = [
         name: 'Advanced Industrial Scrubbing',
         description: 'Mandatory installation of high-efficiency particulate scrubbers.',
         reduction: 40,
-        annualCost: 500,
-        livesSaved: 450,
-        economicBenefit: 800,
+        annualCost: 1200, // High-CAPEX Subsidy
+        livesSaved: 1800,
+        economicBenefit: 2500, // Health cost saving
         publicTransportLoad: 0,
         sourceImpact: 'Industrial Emissions',
     },
@@ -53,10 +53,10 @@ export const POLICIES = [
         name: 'Mass Transit Expansion',
         description: '50% increase in electric bus frequency and metro lines.',
         reduction: 45,
-        annualCost: 300,
-        livesSaved: 280,
-        economicBenefit: 600,
-        publicTransportLoad: -20, // Reduction in congestion
+        annualCost: 850, // EV Transition program
+        livesSaved: 950,
+        economicBenefit: 1200,
+        publicTransportLoad: -25,
         sourceImpact: 'Vehicular Emissions',
     }
 ];

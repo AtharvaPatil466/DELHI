@@ -13,24 +13,132 @@ const CitizenScience = () => {
         { id: 3, type: 'Open Burning', area: 'Rohini Sec 8', severity: 'High', status: 'Action Taken', time: '1h ago', votes: 42, description: 'Garbage burning in local park. Fire department notified.', author: 'Priya M.' },
     ]);
 
-    // Quick Action Handlers (For Demo purposes)
-    const addReport = (type) => {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalData, setModalData] = useState({ type: '', description: '', area: '', image: null });
+    const [imagePreview, setImagePreview] = useState(null);
+
+    const handleQuickAction = (type) => {
+        setModalData({ ...modalData, type: type, description: '', area: 'Current Location (GPS)', image: null });
+        setImagePreview(null);
+        setIsModalOpen(true);
+    };
+
+    const handleImageUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setModalData({ ...modalData, image: file });
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreview(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const submitReport = () => {
         const newReport = {
             id: Date.now(),
-            type: type,
-            area: 'Current Location (GPS)',
+            type: modalData.type,
+            area: modalData.area || 'Current Location (GPS)',
             severity: 'High',
             status: 'Pending',
             time: 'Just Now',
             votes: 0,
-            description: 'New violation reported via Green Army Quick-Action.',
-            author: 'You'
+            description: modalData.description || `New ${modalData.type} reported.`,
+            author: 'You',
+            image: imagePreview
         };
         setReports([newReport, ...reports]);
+        setIsModalOpen(false);
     };
 
     return (
         <div className="p-8 bg-background min-h-[calc(100vh-80px)] space-y-8 text-white">
+
+            {/* REPORT MODAL */}
+            <AnimatePresence>
+                {isModalOpen && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setIsModalOpen(false)}
+                            className="absolute inset-0 bg-black/80 backdrop-blur-md"
+                        />
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                            className="relative w-full max-w-lg bg-[#18181b] border border-white/10 rounded-[32px] overflow-hidden shadow-2xl"
+                        >
+                            <div className="p-8 space-y-6">
+                                <div className="flex justify-between items-center">
+                                    <h3 className="text-xl font-bold flex items-center gap-2">
+                                        <Camera className="w-6 h-6 text-primary" />
+                                        Submit Report: <span className="text-primary">{modalData.type}</span>
+                                    </h3>
+                                    <button onClick={() => setIsModalOpen(false)} className="text-gray-500 hover:text-white transition-colors">
+                                        <Zap className="w-5 h-5 rotate-45" />
+                                    </button>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Description</label>
+                                        <textarea
+                                            value={modalData.description}
+                                            onChange={(e) => setModalData({ ...modalData, description: e.target.value })}
+                                            placeholder="Describe the violation (e.g. dense black smoke, site name)..."
+                                            className="w-full bg-white/5 border border-white/5 rounded-2xl p-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all min-h-[100px]"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Location</label>
+                                        <div className="relative">
+                                            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
+                                            <input
+                                                type="text"
+                                                value={modalData.area}
+                                                onChange={(e) => setModalData({ ...modalData, area: e.target.value })}
+                                                className="w-full bg-white/5 border border-white/5 rounded-2xl py-3 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Evidence Photo</label>
+                                        <div className="flex items-center gap-4">
+                                            <label className="flex-1 flex flex-col items-center justify-center gap-2 h-32 border-2 border-dashed border-white/10 rounded-2xl hover:bg-white/5 transition-all cursor-pointer overflow-hidden group">
+                                                {imagePreview ? (
+                                                    <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <>
+                                                        <Camera className="w-8 h-8 text-gray-600 group-hover:text-primary transition-colors" />
+                                                        <span className="text-[10px] text-gray-500 font-bold uppercase">Click to upload photo</span>
+                                                    </>
+                                                )}
+                                                <input type="file" onChange={handleImageUpload} className="hidden" accept="image/*" />
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={submitReport}
+                                    className="w-full py-4 bg-primary text-white text-xs font-black uppercase tracking-[0.2em] rounded-2xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                                >
+                                    SUBMIT TO GREEN ARMY
+                                </button>
+                                <p className="text-[9px] text-center text-gray-500 italic">
+                                    By submitting, you earn +50 Green Credits. False reporting will result in credit deduction.
+                                </p>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
 
             {/* 1. HERO BRANDING SECTION */}
             <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-green-900/40 to-emerald-900/40 border border-green-500/20 p-10 text-center">
@@ -70,19 +178,19 @@ const CitizenScience = () => {
                             Quick Report
                         </h3>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <button onClick={() => addReport('Waste Burning')} className="p-4 rounded-2xl bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 transition-all flex flex-col items-center gap-2 group">
+                            <button onClick={() => handleQuickAction('Waste Burning')} className="p-4 rounded-2xl bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 transition-all flex flex-col items-center gap-2 group">
                                 <Flame className="w-6 h-6 text-red-500 group-hover:scale-110 transition-transform" />
                                 <span className="text-xs font-bold text-red-300">Burning</span>
                             </button>
-                            <button onClick={() => addReport('Construction Dust')} className="p-4 rounded-2xl bg-orange-500/10 border border-orange-500/20 hover:bg-orange-500/20 transition-all flex flex-col items-center gap-2 group">
+                            <button onClick={() => handleQuickAction('Construction Dust')} className="p-4 rounded-2xl bg-orange-500/10 border border-orange-500/20 hover:bg-orange-500/20 transition-all flex flex-col items-center gap-2 group">
                                 <Hammer className="w-6 h-6 text-orange-500 group-hover:scale-110 transition-transform" />
                                 <span className="text-xs font-bold text-orange-300">Dust</span>
                             </button>
-                            <button onClick={() => addReport('Industrial Smoke')} className="p-4 rounded-2xl bg-gray-500/10 border border-gray-500/20 hover:bg-gray-500/20 transition-all flex flex-col items-center gap-2 group">
+                            <button onClick={() => handleQuickAction('Industrial Smoke')} className="p-4 rounded-2xl bg-gray-500/10 border border-gray-500/20 hover:bg-gray-500/20 transition-all flex flex-col items-center gap-2 group">
                                 <Zap className="w-6 h-6 text-gray-400 group-hover:scale-110 transition-transform" />
                                 <span className="text-xs font-bold text-gray-300">Industry</span>
                             </button>
-                            <button onClick={() => addReport('Vehicle Emission')} className="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20 hover:bg-blue-500/20 transition-all flex flex-col items-center gap-2 group">
+                            <button onClick={() => handleQuickAction('Vehicle Emission')} className="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20 hover:bg-blue-500/20 transition-all flex flex-col items-center gap-2 group">
                                 <Truck className="w-6 h-6 text-blue-400 group-hover:scale-110 transition-transform" />
                                 <span className="text-xs font-bold text-blue-300">Vehicle</span>
                             </button>
@@ -122,27 +230,41 @@ const CitizenScience = () => {
                                             </div>
                                         </div>
                                         <div className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${report.status === 'Verified' ? 'bg-green-500/10 text-green-400 border border-green-500/20' :
-                                                report.status === 'Action Taken' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' :
-                                                    'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20'
+                                            report.status === 'Action Taken' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' :
+                                                'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20'
                                             }`}>
                                             {report.status}
                                         </div>
                                     </div>
 
-                                    <p className="text-sm text-gray-400 mb-6 leading-relaxed pl-16">
-                                        <span className="text-white font-bold">{report.author}:</span> {report.description}
-                                    </p>
+                                    <div className="pl-16 space-y-4">
+                                        <p className="text-sm text-gray-400 leading-relaxed">
+                                            <span className="text-white font-bold">{report.author}:</span> {report.description}
+                                        </p>
 
-                                    <div className="flex items-center justify-between border-t border-white/5 pt-4 pl-16">
-                                        <div className="flex items-center gap-6">
-                                            <button className="flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-green-400 group transition-colors">
-                                                <ThumbsUp className="w-4 h-4" />
-                                                Verify ({report.votes})
-                                            </button>
-                                            <button className="flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-white group transition-colors">
-                                                <MessageCircle className="w-4 h-4" />
-                                                Discuss
-                                            </button>
+                                        {report.image && (
+                                            <div className="relative w-full h-48 md:h-64 rounded-2xl overflow-hidden border border-white/10 shadow-2xl group">
+                                                <img src={report.image} alt="Report evidence" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
+                                                <div className="absolute bottom-4 left-4 flex items-center gap-2">
+                                                    <div className="px-2 py-1 bg-primary/20 backdrop-blur-md rounded text-[8px] font-black text-white uppercase tracking-tighter">
+                                                        Evidence ID: {report.id.toString().slice(-6)}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        <div className="flex items-center justify-between border-t border-white/5 pt-4">
+                                            <div className="flex items-center gap-6">
+                                                <button className="flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-green-400 group transition-colors">
+                                                    <ThumbsUp className="w-4 h-4" />
+                                                    Verify ({report.votes})
+                                                </button>
+                                                <button className="flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-white group transition-colors">
+                                                    <MessageCircle className="w-4 h-4" />
+                                                    Discuss
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </motion.div>

@@ -53,7 +53,13 @@ const AQICard = ({ area, aqi, pollutants, onClick }) => {
                         </span>
                     </div>
                 </div>
-                <button className="p-2 bg-white/5 rounded-full text-gray-400 group-hover:bg-white group-hover:text-black transition-all">
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onClick();
+                    }}
+                    className="p-2 bg-white/5 rounded-full text-gray-400 group-hover:bg-white group-hover:text-black transition-all transform group-hover:rotate-45"
+                >
                     <ArrowUpRight className="w-4 h-4" />
                 </button>
             </div>
