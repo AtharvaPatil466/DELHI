@@ -26,19 +26,20 @@ const getDistance = (coord1, coord2) => {
  */
 const generateSimulatedFires = () => {
     const fires = [];
-    const count = 40 + Math.floor(Math.random() * 20);
+    const count = 48 + Math.floor(Math.random() * 12); // Targeting ~50-60 as shown in UI
     for (let i = 0; i < count; i++) {
-        // Punjab/Haryana "Burning Belt"
-        const lat = 29.5 + Math.random() * 2.0;
-        const lon = 74.0 + Math.random() * 2.5;
-        const frp = 10 + Math.random() * 140;
+        // Broad range covering Punjab, Haryana, and NCR periphery
+        // Delhi is approx 28.6, 77.2
+        const lat = 28.4 + Math.random() * 1.8; // Range 28.4 - 30.2 (Captures NCR + North)
+        const lon = 76.3 + Math.random() * 1.5; // Range 76.3 - 77.8 (Captures West + East NCR)
+        const frp = 20 + Math.random() * 180;
 
         fires.push({
             id: `sim-${i}`,
             position: [lat, lon],
-            intensity: frp / 150,
+            intensity: frp / 200,
             frp: Math.round(frp),
-            confidence: Math.random() > 0.5 ? 'High' : 'Nominal'
+            confidence: Math.random() > 0.6 ? 'High' : 'Nominal'
         });
     }
     return fires;

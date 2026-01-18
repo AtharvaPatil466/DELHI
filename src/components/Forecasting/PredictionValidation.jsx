@@ -6,6 +6,9 @@ const PredictionValidation = ({
     history = [],
     metrics = { mae: 0, within15: 0, within25: 0, directionalAccuracy: 0 }
 }) => {
+    const [isExpanded, setIsExpanded] = React.useState(false);
+    const displayHistory = isExpanded ? history : history.slice(0, 7);
+
     return (
         <div className="space-y-6">
             {/* Metrics Header */}
@@ -45,7 +48,7 @@ const PredictionValidation = ({
                 <div className="p-6 border-b border-white/5 flex justify-between items-center">
                     <h3 className="font-bold flex items-center gap-2 text-white">
                         <BarChart2 className="text-primary" size={20} />
-                        7-Day Validation History
+                        {isExpanded ? '30-Day Model Audit Log' : '7-Day Validation History'}
                     </h3>
                     <span className="text-xs font-mono text-gray-500 bg-white/5 px-2 py-1 rounded">
                         Last updated: Today 09:00
@@ -64,7 +67,7 @@ const PredictionValidation = ({
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-white/5">
-                            {history.map((row, i) => (
+                            {displayHistory.map((row, i) => (
                                 <tr key={i} className="hover:bg-white/5 transition-colors">
                                     <td className="px-6 py-4 font-mono text-gray-300">
                                         <div className="font-bold text-white">{row.date}</div>
@@ -78,7 +81,7 @@ const PredictionValidation = ({
                                     </td>
                                     <td className="px-6 py-4 text-center">
                                         <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${Math.abs(row.error) <= 15 ? 'bg-green-500/10 text-green-400' :
-                                                Math.abs(row.error) <= 25 ? 'bg-yellow-500/10 text-yellow-400' : 'bg-red-500/10 text-red-400'
+                                            Math.abs(row.error) <= 25 ? 'bg-yellow-500/10 text-yellow-400' : 'bg-red-500/10 text-red-400'
                                             }`}>
                                             {row.error > 0 ? '+' : ''}{row.error} ({row.errorPercent}%)
                                         </div>
@@ -95,8 +98,11 @@ const PredictionValidation = ({
                 </div>
 
                 <div className="p-4 bg-white/5 border-t border-white/5 text-center">
-                    <button className="text-xs font-bold text-primary hover:text-white transition-colors uppercase tracking-widest">
-                        View Full 30-Day Audit Log
+                    <button
+                        onClick={() => setIsExpanded(!isExpanded)}
+                        className="text-xs font-bold text-primary hover:text-white transition-colors uppercase tracking-widest"
+                    >
+                        {isExpanded ? 'Show 7-Day Summary' : 'View Full 30-Day Audit Log'}
                     </button>
                 </div>
             </div>

@@ -25,7 +25,24 @@ L.Icon.Default.mergeOptions({
 
 const MapResizer = () => {
     const map = useMap();
-    useEffect(() => { setTimeout(() => { map.invalidateSize(); }, 500); }, [map]);
+    useEffect(() => {
+        // Aggressive resynchronization sequence
+        const resync = () => { map.invalidateSize(); };
+
+        // Immediate sync
+        resync();
+
+        // Sequence sync as elements settle (Extended to 5s)
+        const timers = [100, 300, 500, 1000, 2000, 3000, 5000].map(ms => setTimeout(resync, ms));
+
+        // Window resize listener
+        window.addEventListener('resize', resync);
+
+        return () => {
+            timers.forEach(clearTimeout);
+            window.removeEventListener('resize', resync);
+        };
+    }, [map]);
     return null;
 };
 
@@ -95,7 +112,7 @@ const Map3D = ({ setActiveTab }) => {
     }, [denseStations]);
 
     return (
-        <div className="relative w-full min-h-[calc(100vh-80px)] overflow-hidden bg-[#09090b] flex flex-col">
+        <div className="relative w-full h-[calc(100vh-80.5px)] overflow-hidden bg-[#09090b] flex flex-col">
 
             {/* --- HEADER CONTROLS --- */}
             <div className="absolute top-0 left-0 right-0 z-[1100] p-4 md:p-6 pointer-events-none">
@@ -138,9 +155,9 @@ const Map3D = ({ setActiveTab }) => {
                 </AnimatePresence>
             </div>
 
-            {/* Main Content Area */}
-            <div className="relative w-full h-[85vh]">
-                <div className="h-full w-full relative">
+            {/* Main Content Area - Total Viewport Saturation */}
+            <div className="absolute inset-0 z-0 overflow-hidden">
+                <div className="absolute inset-0">
                     <div className="absolute top-28 right-6 z-[900] w-80 pointer-events-none">
                         <div className="pointer-events-auto">
                             <Suspense fallback={<div className="p-8 glass rounded-2xl animate-pulse text-gray-500 text-[10px] font-black uppercase">Decoding Satellite Intel...</div>}>
@@ -150,10 +167,10 @@ const Map3D = ({ setActiveTab }) => {
                     </div>
 
                     <MapContainer
-                        center={[28.6139, 77.2090]}
-                        zoom={11}
-                        minZoom={9}
-                        maxBounds={[[28.0, 76.5], [29.5, 78.0]]}
+                        center={[28.95, 77.10]} // Centered north to capture the fire belt better
+                        zoom={10}
+                        minZoom={8}
+                        maxBounds={[[27.0, 75.0], [31.0, 79.0]]} // Drastic expansion of bounds
                         scrollWheelZoom={true}
                         style={{ height: '100%', width: '100%' }}
                         zoomControl={false}
@@ -250,6 +267,7 @@ const Map3D = ({ setActiveTab }) => {
                                 </Popup>
                             </Polyline>
                         ))}
+
                     </MapContainer>
 
                     {/* 2D V5.0 Overlays */}

@@ -12,7 +12,8 @@ const DashboardOverview = ({ onAreaClick }) => {
     const fetchData = () => {
         setLoading(true);
         setTimeout(() => {
-            setData(getAllAreasData());
+            const freshData = getAllAreasData();
+            setData(freshData);
             setLastRefresh(new Date());
             setLoading(false);
         }, 800);
@@ -25,29 +26,31 @@ const DashboardOverview = ({ onAreaClick }) => {
     }, []);
 
     const [timeRange, setTimeRange] = useState('24H');
-    const [liveAQI, setLiveAQI] = useState(312);
+    const [liveAQI, setLiveAQI] = useState(0);
 
     const getTrendData = () => {
+        const avg = data.length > 0 ? Math.round(data.reduce((acc, curr) => acc + curr.aqi, 0) / data.length) : 480;
+
         switch (timeRange) {
             case '1H':
                 return [
-                    { time: '03:10', value: 305 }, { time: '03:20', value: 308 },
-                    { time: '03:30', value: 312 }, { time: '03:40', value: 310 },
-                    { time: '03:50', value: 315 }, { time: '04:00', value: 313 }
+                    { time: '10:10', value: avg - 5 }, { time: '10:20', value: avg - 2 },
+                    { time: '10:30', value: avg + 4 }, { time: '10:40', value: avg + 8 },
+                    { time: '10:50', value: avg + 3 }, { time: '11:00', value: avg }
                 ];
             case '7D':
                 return [
-                    { time: 'Mon', value: 280 }, { time: 'Tue', value: 310 },
-                    { time: 'Wed', value: 345 }, { time: 'Thu', value: 390 },
-                    { time: 'Fri', value: 360 }, { time: 'Sat', value: 320 },
-                    { time: 'Sun', value: 312 }
+                    { time: 'Mon', value: avg - 150 }, { time: 'Tue', value: avg - 100 },
+                    { time: 'Wed', value: avg - 40 }, { time: 'Thu', value: avg },
+                    { time: 'Fri', value: avg - 30 }, { time: 'Sat', value: avg - 80 },
+                    { time: 'Sun', value: avg }
                 ];
             default: // 24H
                 return [
-                    { time: '06:00', value: 240 }, { time: '09:00', value: 280 },
-                    { time: '12:00', value: 342 }, { time: '15:00', value: 320 },
-                    { time: '18:00', value: 360 }, { time: '21:00', value: 310 },
-                    { time: '00:00', value: 290 },
+                    { time: '06:00', value: avg - 80 }, { time: '09:00', value: avg - 30 },
+                    { time: '12:00', value: avg + 40 }, { time: '15:00', value: avg + 20 },
+                    { time: '18:00', value: avg + 100 }, { time: '21:00', value: avg + 45 },
+                    { time: '00:00', value: avg - 15 },
                 ];
         }
     };
@@ -55,11 +58,11 @@ const DashboardOverview = ({ onAreaClick }) => {
     const trendData = getTrendData();
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            setLiveAQI(prev => 310 + Math.floor(Math.random() * 6));
-        }, 5000);
-        return () => clearInterval(interval);
-    }, []);
+        if (data.length > 0) {
+            const avg = Math.round(data.reduce((acc, curr) => acc + curr.aqi, 0) / data.length);
+            setLiveAQI(avg);
+        }
+    }, [data]);
 
     // Cigarettes Calculation (Roughly AQI / 22)
     const cigarettes = Math.round(liveAQI / 22);
