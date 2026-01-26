@@ -19,7 +19,7 @@ const db = new sqlite3.Database(dbPath, (err) => {
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )`, (err) => {
             if (err) {
-                console.error('Error creating table', err.message);
+                console.error('Error creating users table', err.message);
             } else {
                 // Create a default admin user if not exists
                 const adminUser = 'admin';
@@ -32,6 +32,23 @@ const db = new sqlite3.Database(dbPath, (err) => {
                         console.log('Default admin created: admin / admin123');
                     }
                 });
+            }
+        });
+
+        db.run(`CREATE TABLE IF NOT EXISTS reports (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            type TEXT,
+            area TEXT,
+            severity TEXT,
+            status TEXT DEFAULT 'Pending',
+            description TEXT,
+            author TEXT,
+            image TEXT,
+            votes INTEGER DEFAULT 0,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )`, (err) => {
+            if (err) {
+                console.error('Error creating reports table', err.message);
             }
         });
     }

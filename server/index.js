@@ -82,6 +82,50 @@ app.get('/api/auth/verify', (req, res) => {
     });
 });
 
+// Reports Endpoints
+app.get('/api/reports', (req, res) => {
+    db.all(`SELECT * FROM reports ORDER BY created_at DESC`, [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
+app.post('/api/reports', (req, res) => {
+    const { type, area, severity, description, author, image } = req.body;
+    db.run(
+        `INSERT INTO reports (type, area, severity, description, author, image) VALUES (?, ?, ?, ?, ?, ?)`,
+        [type, area, severity, description, author, image],
+        function (err) {
+            if (err) return res.status(500).json({ error: err.message });
+            res.status(201).json({ id: this.lastID, message: 'Report submitted successfully' });
+        }
+    );
+});
+
+app.patch('/api/reports/:id/status', (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    // Simple admin check (in production, use middleware)
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) return res.status(401).json({ error: 'Unauthorized' });
+
+    jwt.verify(token, JWT_SECRET, (err, decoded) => {
+        if (err || decoded.role !== 'admin') {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+
+        db.run(
+            `UPDATE reports SET status = ? WHERE id = ?`,
+            [status, id],
+            function (err) {
+                if (err) return res.status(500).json({ error: err.message });
+                res.json({ message: 'Report status updated' });
+            }
+        );
+    });
+});
+
 app.listen(PORT, () => {
     console.log(`Auth Server running on http://localhost:${PORT}`);
 });

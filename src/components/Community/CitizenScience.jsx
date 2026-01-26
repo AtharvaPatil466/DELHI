@@ -1,21 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Camera, MapPin, ShieldCheck, ThumbsUp,
     MessageCircle, Trophy, Coins, Zap,
-    AlertCircle, Clock, Flame, Truck, Hammer
+    AlertCircle, Clock, Flame, Truck, Hammer,
+    Check, X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '../../context/AuthContext';
+import axios from 'axios';
 
 const CitizenScience = () => {
-    const [reports, setReports] = useState([
-        { id: 1, type: 'Industrial Smoke', area: 'Okhla Phase III', severity: 'High', status: 'Verified', time: '10m ago', votes: 24, description: 'Dense yellow smoke observed from chemical unit near metro station.', author: 'Rahul S.' },
-        { id: 2, type: 'Construction Dust', area: 'Noida Sec 62', severity: 'Medium', status: 'Pending', time: '25m ago', votes: 8, description: 'Construction site operating without water sprinkling or dust covers.', author: 'Amit K.' },
-        { id: 3, type: 'Open Burning', area: 'Rohini Sec 8', severity: 'High', status: 'Action Taken', time: '1h ago', votes: 42, description: 'Garbage burning in local park. Fire department notified.', author: 'Priya M.' },
-    ]);
+    const { user } = useAuth();
+    const [reports, setReports] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalData, setModalData] = useState({ type: '', description: '', area: '', image: null });
     const [imagePreview, setImagePreview] = useState(null);
+
+    const API_URL = 'http://localhost:5001/api';
+
+    const fetchReports = async () => {
+        try {
+            const response = await axios.get(`${API_URL}/reports`);
+            setReports(response.data);
+            setLoading(false);
+        } catch (error) {
+            console.error('Error fetching reports:', error);
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchReports();
+    }, []);
 
     const handleQuickAction = (type) => {
         setModalData({ ...modalData, type: type, description: '', area: 'Current Location (GPS)', image: null });
@@ -35,27 +53,58 @@ const CitizenScience = () => {
         }
     };
 
-    const submitReport = () => {
+    const submitReport = async () => {
         const newReport = {
-            id: Date.now(),
             type: modalData.type,
             area: modalData.area || 'Current Location (GPS)',
             severity: 'High',
-            status: 'Pending',
-            time: 'Just Now',
-            votes: 0,
             description: modalData.description || `New ${modalData.type} reported.`,
-            author: 'You',
+            author: user?.username || 'Anonymous',
             image: imagePreview
         };
-        setReports([newReport, ...reports]);
-        setIsModalOpen(false);
+
+        try {
+            await axios.post(`${API_URL}/reports`, newReport);
+            fetchReports();
+            setIsModalOpen(false);
+        } catch (error) {
+            console.error('Error submitting report:', error);
+            alert('Failed to submit report');
+        }
     };
+
+    const updateReportStatus = async (reportId, status) => {
+        try {
+            const token = localStorage.getItem('token');
+            await axios.patch(`${API_URL}/reports/${reportId}/status`,
+                { status },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            fetchReports();
+        } catch (error) {
+            console.error('Error updating status:', error);
+            alert('Failed to update status. Admin privileges required.');
+        }
+    };
+
+    const formatTime = (dateString) => {
+        if (!dateString) return 'Just Now';
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffInMinutes = Math.floor((now - date) / 60000);
+        if (diffInMinutes < 1) return 'Just Now';
+        if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+        if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
+        return date.toLocaleDateString();
+    };
+
+    const filteredReports = user?.role === 'admin'
+        ? reports
+        : reports.filter(r => r.status === 'Verified' || r.status === 'Action Taken');
 
     return (
         <div className="p-8 bg-background min-h-[calc(100vh-80px)] space-y-8 text-white">
-
-            {/* REPORT MODAL */}
+            {/* REPORT MODAL ... */}
             <AnimatePresence>
                 {isModalOpen && (
                     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
@@ -207,69 +256,103 @@ const CitizenScience = () => {
                             </div>
                         </div>
 
-                        <AnimatePresence>
-                            {reports.map((report) => (
-                                <motion.div
-                                    key={report.id}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, x: -20 }}
-                                    className="glass p-6 rounded-3xl border-white/5 hover:bg-white/5 transition-all"
-                                >
-                                    <div className="flex justify-between items-start mb-4">
-                                        <div className="flex gap-4">
-                                            <div className="w-12 h-12 bg-white/5 rounded-2xl border border-white/5 flex items-center justify-center">
-                                                <AlertCircle className={`w-6 h-6 ${report.severity === 'High' ? 'text-red-500' : 'text-orange-500'}`} />
-                                            </div>
-                                            <div>
-                                                <h4 className="font-bold text-gray-200">{report.type}</h4>
-                                                <p className="text-xs text-gray-500 flex items-center gap-2 mt-1">
-                                                    <MapPin className="w-3 h-3 text-blue-400" />
-                                                    {report.area} • {report.time}
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${report.status === 'Verified' ? 'bg-green-500/10 text-green-400 border border-green-500/20' :
-                                            report.status === 'Action Taken' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' :
-                                                'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20'
-                                            }`}>
-                                            {report.status}
-                                        </div>
+                        {loading ? (
+                            <div className="text-center py-12">
+                                <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto mb-4"></div>
+                                <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px]">Loading reports...</p>
+                            </div>
+                        ) : (
+                            <AnimatePresence>
+                                {filteredReports.length === 0 && (
+                                    <div className="text-center py-12 bg-white/5 rounded-3xl border border-dashed border-white/10">
+                                        <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px]">No verified reports currently.</p>
                                     </div>
-
-                                    <div className="pl-16 space-y-4">
-                                        <p className="text-sm text-gray-400 leading-relaxed">
-                                            <span className="text-white font-bold">{report.author}:</span> {report.description}
-                                        </p>
-
-                                        {report.image && (
-                                            <div className="relative w-full h-48 md:h-64 rounded-2xl overflow-hidden border border-white/10 shadow-2xl group">
-                                                <img src={report.image} alt="Report evidence" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
-                                                <div className="absolute bottom-4 left-4 flex items-center gap-2">
-                                                    <div className="px-2 py-1 bg-primary/20 backdrop-blur-md rounded text-[8px] font-black text-white uppercase tracking-tighter">
-                                                        Evidence ID: {report.id.toString().slice(-6)}
-                                                    </div>
+                                )}
+                                {filteredReports.map((report) => (
+                                    <motion.div
+                                        key={report.id}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, x: -20 }}
+                                        className="glass p-6 rounded-3xl border-white/5 hover:bg-white/5 transition-all"
+                                    >
+                                        <div className="flex justify-between items-start mb-4">
+                                            <div className="flex gap-4">
+                                                <div className="w-12 h-12 bg-white/5 rounded-2xl border border-white/5 flex items-center justify-center">
+                                                    <AlertCircle className={`w-6 h-6 ${report.severity === 'High' ? 'text-red-500' : 'text-orange-500'}`} />
+                                                </div>
+                                                <div>
+                                                    <h4 className="font-bold text-gray-200">{report.type}</h4>
+                                                    <p className="text-xs text-gray-500 flex items-center gap-2 mt-1">
+                                                        <MapPin className="w-3 h-3 text-blue-400" />
+                                                        {report.area} • {formatTime(report.created_at)}
+                                                    </p>
                                                 </div>
                                             </div>
-                                        )}
+                                            <div className="flex items-center gap-2">
+                                                <div className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${report.status === 'Verified' ? 'bg-green-500/10 text-green-400 border border-green-500/20' :
+                                                        report.status === 'Action Taken' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' :
+                                                            report.status === 'Rejected' ? 'bg-red-500/10 text-red-400 border border-red-500/20' :
+                                                                'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20'
+                                                    }`}>
+                                                    {report.status}
+                                                </div>
 
-                                        <div className="flex items-center justify-between border-t border-white/5 pt-4">
-                                            <div className="flex items-center gap-6">
-                                                <button className="flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-green-400 group transition-colors">
-                                                    <ThumbsUp className="w-4 h-4" />
-                                                    Verify ({report.votes})
-                                                </button>
-                                                <button className="flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-white group transition-colors">
-                                                    <MessageCircle className="w-4 h-4" />
-                                                    Discuss
-                                                </button>
+                                                {user?.role === 'admin' && report.status === 'Pending' && (
+                                                    <div className="flex items-center gap-1 ml-2">
+                                                        <button
+                                                            onClick={() => updateReportStatus(report.id, 'Verified')}
+                                                            className="p-1.5 bg-green-500/20 hover:bg-green-500/40 text-green-400 rounded-lg transition-all"
+                                                            title="Approve Report"
+                                                        >
+                                                            <Check className="w-4 h-4" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => updateReportStatus(report.id, 'Rejected')}
+                                                            className="p-1.5 bg-red-500/20 hover:bg-red-500/40 text-red-400 rounded-lg transition-all"
+                                                            title="Reject Report"
+                                                        >
+                                                            <X className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
-                                    </div>
-                                </motion.div>
-                            ))}
-                        </AnimatePresence>
+
+                                        <div className="pl-16 space-y-4">
+                                            <p className="text-sm text-gray-400 leading-relaxed">
+                                                <span className="text-white font-bold">{report.author}:</span> {report.description}
+                                            </p>
+
+                                            {report.image && (
+                                                <div className="relative w-full h-48 md:h-64 rounded-2xl overflow-hidden border border-white/10 shadow-2xl group">
+                                                    <img src={report.image} alt="Report evidence" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
+                                                    <div className="absolute bottom-4 left-4 flex items-center gap-2">
+                                                        <div className="px-2 py-1 bg-primary/20 backdrop-blur-md rounded text-[8px] font-black text-white uppercase tracking-tighter">
+                                                            Evidence ID: {report.id.toString().slice(-6)}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            <div className="flex items-center justify-between border-t border-white/5 pt-4">
+                                                <div className="flex items-center gap-6">
+                                                    <button className="flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-green-400 group transition-colors">
+                                                        <ThumbsUp className="w-4 h-4" />
+                                                        Verify ({report.votes})
+                                                    </button>
+                                                    <button className="flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-white group transition-colors">
+                                                        <MessageCircle className="w-4 h-4" />
+                                                        Discuss
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                ))}
+                            </AnimatePresence>
+                        )}
                     </div>
                 </div>
 
